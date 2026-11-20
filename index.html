@@ -1,0 +1,2709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#05060a">
+<title>ULTRA MAX SPEED — SKIBIDI PRO</title>
+<style>
+/* ============================================================
+   ULTRA MAX SPEED — SKIBIDI PRO  ::  SINGLE FILE OS BUILD
+   01 tokens · 02 shell · 03 wallpaper · 04 status/island
+   05 lock · 06 home · 07 apps · 08 controls · 09 shades
+   10 components · 11 responsive · 12 motion
+   ============================================================ */
+
+*,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0;background:#000;overscroll-behavior:none}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI Variable","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  overflow:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+button,input,textarea,select{font-family:inherit}
+[hidden]{display:none!important}
+::-webkit-scrollbar{width:0;height:0}
+
+/* ---------- 01 · TOKENS ---------- */
+#os{
+  position:fixed;inset:0;overflow:hidden;isolation:isolate;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+  --accent:#22d3ee;--accent-2:#6366f1;--accent-soft:rgba(34,211,238,.18);
+  --bg:#05060a;--text:#eef2f8;--muted:#8b93a7;--muted-2:#5f687d;
+  --surface:rgba(255,255,255,.055);--surface-2:rgba(255,255,255,.09);
+  --surface-3:rgba(255,255,255,.13);
+  --stroke:rgba(255,255,255,.12);--stroke-2:rgba(255,255,255,.07);
+  --app-bg:linear-gradient(180deg,#080a11 0%,#05070c 100%);
+  --glass-bg:rgba(255,255,255,.07);--glass-br:rgba(255,255,255,.14);
+  --blur:22px;--wp-dim:rgba(0,0,0,.28);
+  --ok:#22c55e;--err:#ef4444;--warn:#f59e0b;
+  --r-lg:22px;--r-md:16px;--r-sm:11px;
+  color:var(--text);background:var(--bg);font-size:15px;line-height:1.45;
+  transition:background .45s ease,color .45s ease;
+  color-scheme:dark;
+}
+#os.light{
+  --bg:#e9eef6;--text:#0b1220;--muted:#5b6478;--muted-2:#8b94a8;
+  --surface:rgba(255,255,255,.62);--surface-2:rgba(255,255,255,.85);
+  --surface-3:rgba(255,255,255,.98);
+  --stroke:rgba(10,20,40,.12);--stroke-2:rgba(10,20,40,.07);
+  --app-bg:linear-gradient(180deg,#f7f9fd 0%,#e5ecf6 100%);
+  --glass-bg:rgba(255,255,255,.58);--glass-br:rgba(255,255,255,.9);
+  --wp-dim:rgba(255,255,255,.14);
+  color-scheme:light;
+}
+
+/* ---------- 02 · SHELL ---------- */
+#os .layer{position:absolute;inset:0}
+.glass{
+  background:var(--glass-bg);
+  border:1px solid var(--glass-br);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(170%);
+  backdrop-filter:blur(var(--blur)) saturate(170%);
+}
+
+/* ---------- 03 · WALLPAPER ---------- */
+#wallpaper{
+  position:absolute;inset:0;background:var(--wbase,#05060a);
+  transition:background .6s ease;
+}
+#wallpaper::before{
+  content:"";position:absolute;inset:-25%;
+  background:
+    radial-gradient(38% 32% at 24% 20%, var(--w1,#0ea5e9), transparent 70%),
+    radial-gradient(42% 36% at 80% 28%, var(--w2,#7c3aed), transparent 72%),
+    radial-gradient(50% 44% at 52% 88%, var(--w3,#06b6d4), transparent 72%);
+  filter:blur(46px);opacity:.55;
+  animation:drift 30s ease-in-out infinite alternate;
+  will-change:transform;
+}
+@keyframes drift{
+  from{transform:translate3d(-2%,-1.5%,0) scale(1)}
+  to{transform:translate3d(2.5%,2%,0) scale(1.1)}
+}
+#wallDim{position:absolute;inset:0;background:var(--wp-dim);transition:background .45s}
+#os.night #wallDim{background:rgba(0,0,0,.42)}
+#os.light.night #wallDim{background:rgba(10,20,40,.18)}
+
+/* ---------- 04 · STATUS BAR + DYNAMIC ISLAND ---------- */
+#statusBar{
+  position:absolute;top:0;left:0;right:0;
+  height:calc(var(--safe-top) + 46px);
+  padding:var(--safe-top) 20px 0;
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:13px;font-weight:650;letter-spacing:.2px;
+  z-index:60;pointer-events:none;
+  color:var(--text);
+  transition:color .35s,opacity .3s;
+}
+#statusBar .sb-left,#statusBar .sb-right{display:flex;align-items:center;gap:6px;min-width:64px}
+#statusBar .sb-right{justify-content:flex-end;gap:5px}
+#statusBar svg{width:15px;height:15px;display:block}
+.battery{width:23px;height:11px;border:1.4px solid currentColor;border-radius:3.5px;position:relative;opacity:.9}
+.battery::after{content:"";position:absolute;right:-3.5px;top:3px;width:2px;height:5px;background:currentColor;border-radius:0 2px 2px 0}
+.battery i{position:absolute;left:1.2px;top:1.2px;bottom:1.2px;width:70%;background:currentColor;border-radius:1.6px;display:block}
+
+#island{
+  position:absolute;top:calc(var(--safe-top) + 8px);left:50%;
+  transform:translateX(-50%);
+  width:128px;height:33px;background:#000;border-radius:20px;
+  z-index:80;overflow:hidden;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 22px rgba(0,0,0,.55);
+  transition:width .46s cubic-bezier(.34,1.42,.42,1),
+             height .46s cubic-bezier(.34,1.42,.42,1),
+             border-radius .46s cubic-bezier(.34,1.42,.42,1);
+  cursor:pointer;will-change:width,height;
+}
+#island.expanded{width:min(346px,88%);height:98px;border-radius:30px}
+#island.wide{width:min(300px,78%)}
+.island-mini{
+  display:flex;align-items:center;gap:7px;color:#7fe7ff;font-size:10.5px;
+  font-weight:800;letter-spacing:1.4px;white-space:nowrap;
+  transition:opacity .18s,transform .3s;
+}
+.island-mini .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.8)}}
+#island.expanded .island-mini,#island.wide .island-mini{opacity:0;transform:scale(.7);pointer-events:none}
+.island-body{
+  position:absolute;inset:0;padding:0 18px;display:flex;align-items:center;gap:12px;
+  opacity:0;transform:scale(.86);transition:opacity .26s .06s,transform .34s .06s cubic-bezier(.34,1.4,.42,1);
+  color:#fff;pointer-events:none;
+}
+#island.expanded .island-body,#island.wide .island-body{opacity:1;transform:scale(1);pointer-events:auto}
+.island-body .i-ico{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;background:rgba(255,255,255,.1)}
+.island-body .i-ico svg{width:18px;height:18px}
+.island-body .i-txt{min-width:0;flex:1}
+.island-body .i-title{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.island-body .i-sub{font-size:11.5px;color:#9aa4b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.2);border-top-color:#22d3ee;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.island-progress{position:absolute;left:0;bottom:0;height:2px;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .3s ease}
+
+/* ---------- 05 · BOOT + LOCK ---------- */
+#boot{
+  position:absolute;inset:0;z-index:200;background:#04050a;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;
+  transition:opacity .6s ease,visibility .6s;
+}
+#boot.done{opacity:0;visibility:hidden;pointer-events:none}
+.boot-mark{font-size:13px;font-weight:800;letter-spacing:5px;color:#7fe7ff;text-align:center;line-height:1.9}
+.boot-mark small{display:block;font-size:9.5px;letter-spacing:3.4px;color:#4b5566;font-weight:700}
+.boot-bar{width:150px;height:3px;border-radius:3px;background:rgba(255,255,255,.1);overflow:hidden}
+.boot-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#22d3ee,#6366f1);border-radius:3px;transition:width .3s ease}
+.boot-glow{width:78px;height:78px;border-radius:26px;background:linear-gradient(140deg,#22d3ee,#6366f1);display:grid;place-items:center;box-shadow:0 0 60px rgba(34,211,238,.4);animation:bootFloat 2.6s ease-in-out infinite}
+@keyframes bootFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.boot-glow svg{width:38px;height:38px;color:#04121a}
+
+#lockScreen{
+  position:absolute;inset:0;z-index:150;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:0 26px 90px;gap:6px;
+  transition:opacity .5s ease,transform .55s cubic-bezier(.3,.9,.3,1),filter .5s;
+  background:linear-gradient(180deg,rgba(0,0,0,.28),rgba(0,0,0,.05) 40%,rgba(0,0,0,.42));
+}
+#lockScreen.hide{opacity:0;transform:translateY(-42px) scale(1.06);filter:blur(10px);pointer-events:none}
+.lock-time{font-size:74px;font-weight:250;letter-spacing:-3px;line-height:1;color:#fff;text-shadow:0 6px 40px rgba(0,0,0,.45);font-variant-numeric:tabular-nums}
+.lock-date{font-size:14px;font-weight:600;color:rgba(255,255,255,.82);margin-top:6px}
+.lock-chip{
+  margin-top:26px;display:flex;align-items:center;gap:9px;padding:11px 18px;border-radius:20px;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);
+  -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);
+  font-size:12px;font-weight:600;color:#fff;
+}
+.lock-chip svg{width:15px;height:15px;color:#7fe7ff}
+.lock-hint{position:absolute;bottom:calc(48px + var(--safe-bottom));font-size:11.5px;font-weight:600;letter-spacing:1.6px;color:rgba(255,255,255,.55);text-transform:uppercase;animation:hintFloat 2.4s ease-in-out infinite}
+@keyframes hintFloat{0%,100%{transform:translateY(0);opacity:.55}50%{transform:translateY(-6px);opacity:.95}}
+.lock-shortcuts{position:absolute;bottom:calc(110px + var(--safe-bottom));display:flex;gap:44px}
+.lock-sc{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);color:#fff;cursor:pointer;transition:transform .16s}
+.lock-sc:active{transform:scale(.9)}
+.lock-sc svg{width:21px;height:21px}
+
+/* ---------- 06 · HOME SCREEN ---------- */
+#home{
+  position:absolute;inset:0;z-index:10;
+  padding:calc(var(--safe-top) + 62px) 20px calc(var(--safe-bottom) + 10px);
+  display:flex;flex-direction:column;
+  transition:transform .48s cubic-bezier(.3,.9,.3,1),opacity .3s ease,filter .48s ease;
+}
+#home.push{transform:scale(.9) translateY(-12px);opacity:0;filter:blur(12px);pointer-events:none}
+.home-clock{margin-bottom:26px;padding-left:4px}
+.home-time{font-size:52px;font-weight:250;letter-spacing:-2.4px;line-height:1;color:var(--text);font-variant-numeric:tabular-nums;text-shadow:0 2px 24px rgba(0,0,0,.35)}
+.home-sub{font-size:13px;font-weight:600;color:var(--muted);margin-top:4px}
+.home-greet{font-size:11px;font-weight:800;letter-spacing:2.2px;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+.app-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px 8px;margin-top:auto}
+.app-icon{
+  background:none;border:none;padding:0;display:flex;flex-direction:column;align-items:center;gap:7px;
+  cursor:pointer;color:var(--text);transition:transform .16s cubic-bezier(.3,1.4,.5,1);
+}
+.app-icon:active{transform:scale(.88)}
+.app-glyph{
+  width:56px;height:56px;border-radius:17px;display:grid;place-items:center;position:relative;
+  box-shadow:0 8px 22px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.28);
+  transition:transform .16s;
+}
+.app-glyph svg{width:26px;height:26px;color:#fff}
+.app-glyph::after{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(160deg,rgba(255,255,255,.34),transparent 52%);pointer-events:none}
+.app-name{font-size:10.5px;font-weight:600;letter-spacing:.1px;color:var(--text);opacity:.92;max-width:74px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-shadow:0 1px 6px rgba(0,0,0,.3)}
+.badge{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#ef4444;color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center;box-shadow:0 2px 8px rgba(239,68,68,.6)}
+.page-dots{display:flex;justify-content:center;gap:6px;margin:20px 0 14px}
+.page-dots i{width:6px;height:6px;border-radius:50%;background:var(--text);opacity:.28}
+.page-dots i.on{opacity:.95;width:18px;border-radius:3px;background:var(--accent)}
+.dock{
+  display:flex;justify-content:space-around;align-items:center;gap:8px;
+  padding:10px 12px;border-radius:26px;background:var(--glass-bg);border:1px solid var(--glass-br);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);
+}
+.dock .app-icon .app-name{display:none}
+.dock .app-glyph{width:52px;height:52px;border-radius:16px}
+
+/* ---------- 07 · APP WINDOW ---------- */
+#appLayer{position:absolute;inset:0;z-index:40;pointer-events:none}
+#appLayer.open{pointer-events:auto}
+#appWindow{
+  position:absolute;inset:0;background:var(--app-bg);
+  display:flex;flex-direction:column;overflow:hidden;
+  transform:scale(.32);opacity:0;
+  transform-origin:var(--ox,50%) var(--oy,86%);
+  transition:transform .44s cubic-bezier(.2,.9,.25,1),opacity .24s ease;
+  will-change:transform,opacity;
+}
+#appLayer.open #appWindow{transform:scale(1);opacity:1}
+.app-topbar{
+  display:flex;align-items:center;gap:10px;
+  padding:calc(var(--safe-top) + 50px) 14px 10px;
+  flex:0 0 auto;
+}
+.app-title{font-size:15px;font-weight:750;letter-spacing:-.2px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.icon-btn{
+  width:34px;height:34px;border-radius:12px;border:1px solid var(--stroke);
+  background:var(--surface);color:var(--text);display:grid;place-items:center;cursor:pointer;
+  transition:transform .12s,background .18s;flex:0 0 auto;
+}
+.icon-btn:active{transform:scale(.9)}
+.icon-btn svg{width:17px;height:17px}
+.app-body{
+  flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  padding:2px 14px calc(var(--safe-bottom) + 24px);
+}
+.app-body.has-footer{padding-bottom:calc(var(--safe-bottom) + 96px)}
+.app-footer{
+  position:absolute;left:0;right:0;bottom:0;
+  padding:10px 14px calc(10px + var(--safe-bottom));
+  background:linear-gradient(180deg,transparent,var(--bg) 46%);
+  display:flex;gap:9px;align-items:center;flex:0 0 auto;
+}
+
+/* ---------- 08 · COMPONENTS ---------- */
+.seg{display:flex;gap:3px;background:var(--surface);border:1px solid var(--stroke-2);border-radius:14px;padding:3px;margin-bottom:14px}
+.seg button{
+  flex:1;border:none;background:transparent;color:var(--muted);
+  font-size:12px;font-weight:700;padding:9px 2px;border-radius:11px;cursor:pointer;
+  transition:background .2s,color .2s,transform .12s;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.seg button:active{transform:scale(.96)}
+.seg button.active{background:var(--surface-3);color:var(--text);box-shadow:0 2px 10px rgba(0,0,0,.2)}
+
+.card{
+  background:var(--surface);border:1px solid var(--stroke-2);
+  border-radius:var(--r-md);padding:14px;margin-bottom:12px;
+}
+.card-title{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin:0 0 11px;display:flex;align-items:center;gap:7px}
+.card-title svg{width:13px;height:13px}
+
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.field:last-child{margin-bottom:0}
+.label{font-size:10.5px;font-weight:750;letter-spacing:.9px;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;align-items:center;gap:8px}
+.label .cnt{font-weight:600;letter-spacing:0;color:var(--muted-2);font-size:10.5px;text-transform:none}
+.label .cnt.warn{color:var(--warn)}
+.label .cnt.over{color:var(--err)}
+.input,.textarea,.select{
+  width:100%;background:var(--surface);border:1px solid var(--stroke);
+  border-radius:13px;padding:11px 13px;color:var(--text);font-size:14px;
+  outline:none;transition:border-color .18s,box-shadow .18s,background .18s;
+  -webkit-appearance:none;appearance:none;
+}
+.input::placeholder,.textarea::placeholder{color:var(--muted-2)}
+.input:focus,.textarea:focus,.select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);background:var(--surface-2)}
+.textarea{resize:vertical;min-height:92px;line-height:1.5}
+.textarea.mono,.input.mono{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;font-size:12.5px;line-height:1.55}
+.row{display:flex;gap:9px}
+.row>*{flex:1;min-width:0}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  border:1px solid var(--stroke);border-radius:13px;padding:11px 15px;
+  font-size:13px;font-weight:700;color:var(--text);background:var(--surface);
+  cursor:pointer;transition:transform .12s,background .18s,opacity .2s;
+  white-space:nowrap;overflow:hidden;
+}
+.btn:active{transform:scale(.955)}
+.btn:disabled{opacity:.42;cursor:not-allowed;transform:none}
+.btn svg{width:15px;height:15px;flex:0 0 auto}
+.btn-primary{
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  color:#04121a;border-color:transparent;font-weight:800;
+  box-shadow:0 8px 22px var(--accent-soft);
+}
+.btn-primary:active{box-shadow:0 3px 12px var(--accent-soft)}
+.btn-ghost{background:transparent}
+.btn-danger{background:rgba(239,68,68,.14);color:#fca5a5;border-color:rgba(239,68,68,.32)}
+#os.light .btn-danger{color:#b91c1c}
+.btn-sm{padding:8px 11px;font-size:12px;border-radius:11px}
+.btn-block{width:100%}
+.btn-grow{flex:1}
+
+.switch{
+  width:44px;height:26px;border-radius:14px;background:var(--surface-3);
+  border:1px solid var(--stroke);position:relative;cursor:pointer;flex:0 0 auto;
+  transition:background .24s,border-color .24s;padding:0;
+}
+.switch::after{
+  content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;
+  background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.35);transition:transform .26s cubic-bezier(.34,1.4,.5,1);
+}
+.switch.on{background:var(--accent);border-color:transparent}
+.switch.on::after{transform:translateX(18px)}
+
+.setting-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--stroke-2)}
+.setting-row:last-child{border-bottom:none}
+.setting-row .sr-txt{flex:1;min-width:0}
+.setting-row .sr-name{font-size:13.5px;font-weight:650}
+.setting-row .sr-desc{font-size:11.5px;color:var(--muted);margin-top:1px;line-height:1.35}
+.setting-row svg.sr-ico{width:17px;height:17px;color:var(--accent);flex:0 0 auto}
+
+input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:22px;background:transparent;outline:none;
+}
+input[type=range]::-webkit-slider-runnable-track{height:5px;border-radius:3px;background:var(--surface-3)}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#fff;
+  margin-top:-6.5px;box-shadow:0 2px 8px rgba(0,0,0,.4);border:none;
+}
+input[type=range]::-moz-range-track{height:5px;border-radius:3px;background:var(--surface-3)}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border:none;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+
+.chip{
+  display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:11px;
+  font-size:11.5px;font-weight:700;background:var(--surface-2);border:1px solid var(--stroke-2);
+  color:var(--text);cursor:pointer;transition:transform .12s,background .18s;
+}
+.chip:active{transform:scale(.94)}
+.chip svg{width:13px;height:13px}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:8px;font-size:10.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase}
+.pill.ok{background:rgba(34,197,94,.16);color:#4ade80}
+.pill.err{background:rgba(239,68,68,.16);color:#f87171}
+.pill.warn{background:rgba(245,158,11,.16);color:#fbbf24}
+.pill.info{background:var(--accent-soft);color:var(--accent)}
+#os.light .pill.ok{color:#15803d}#os.light .pill.err{color:#b91c1c}#os.light .pill.warn{color:#a16207}
+
+/* Discord preview */
+.dc-wrap{background:#1c1e23;border-radius:16px;padding:14px;border:1px solid rgba(255,255,255,.07)}
+#os.light .dc-wrap{background:#f2f3f5;border-color:rgba(0,0,0,.07)}
+.dc-msg{display:flex;gap:10px;align-items:flex-start}
+.dc-avatar{
+  width:40px;height:40px;border-radius:50%;flex:0 0 auto;overflow:hidden;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  display:grid;place-items:center;color:#04121a;font-weight:800;font-size:15px;
+}
+.dc-avatar img{width:100%;height:100%;object-fit:cover}
+.dc-body{min-width:0;flex:1}
+.dc-head{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.dc-name{font-size:14px;font-weight:700;color:#f2f3f5}
+#os.light .dc-name{color:#060607}
+.dc-bot{font-size:9px;font-weight:800;letter-spacing:.3px;background:#5865f2;color:#fff;padding:1.5px 4.5px;border-radius:4px}
+.dc-time{font-size:10.5px;color:#949ba4}
+.dc-content{font-size:14px;color:#dbdee1;line-height:1.42;margin-top:2px;word-break:break-word;white-space:pre-wrap}
+#os.light .dc-content{color:#2e3338}
+.dc-embed{
+  margin-top:7px;border-left:4px solid var(--accent);border-radius:5px;
+  background:rgba(255,255,255,.045);padding:10px 12px;display:flex;gap:10px;
+  max-width:100%;
+}
+#os.light .dc-embed{background:rgba(0,0,0,.045)}
+.dc-embed-main{min-width:0;flex:1}
+.dc-author{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:#f2f3f5;margin-bottom:4px}
+#os.light .dc-author{color:#060607}
+.dc-author img{width:16px;height:16px;border-radius:50%;object-fit:cover}
+.dc-title{font-size:14px;font-weight:800;color:#f2f3f5;margin-bottom:3px;word-break:break-word}
+#os.light .dc-title{color:#060607}
+.dc-desc{font-size:12.5px;color:#dbdee1;line-height:1.45;white-space:pre-wrap;word-break:break-word}
+#os.light .dc-desc{color:#2e3338}
+.dc-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.dc-field.full{grid-column:1/-1}
+.dc-field-name{font-size:11.5px;font-weight:800;color:#f2f3f5;margin-bottom:1px;word-break:break-word}
+#os.light .dc-field-name{color:#060607}
+.dc-field-val{font-size:12px;color:#dbdee1;white-space:pre-wrap;word-break:break-word}
+#os.light .dc-field-val{color:#2e3338}
+.dc-img{width:100%;border-radius:5px;margin-top:8px;display:block;max-height:220px;object-fit:cover}
+.dc-thumb{width:72px;height:72px;border-radius:5px;object-fit:cover;flex:0 0 auto}
+.dc-footer{display:flex;align-items:center;gap:5px;font-size:10.5px;color:#949ba4;margin-top:8px}
+.dc-footer img{width:14px;height:14px;border-radius:50%;object-fit:cover}
+
+/* field builder */
+.fb-item{background:var(--surface);border:1px solid var(--stroke-2);border-radius:13px;padding:10px;margin-bottom:9px}
+.fb-head{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.fb-idx{font-size:10px;font-weight:800;letter-spacing:.8px;color:var(--muted);text-transform:uppercase;flex:1}
+
+/* activity / templates */
+.list-item{
+  display:flex;gap:11px;align-items:flex-start;padding:12px;
+  background:var(--surface);border:1px solid var(--stroke-2);border-radius:14px;margin-bottom:9px;
+}
+.li-ico{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;flex:0 0 auto}
+.li-ico svg{width:16px;height:16px}
+.li-ico.ok{background:rgba(34,197,94,.16);color:#4ade80}
+.li-ico.err{background:rgba(239,68,68,.16);color:#f87171}
+.li-body{flex:1;min-width:0}
+.li-title{font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.li-sub{font-size:11.5px;color:var(--muted);margin-top:2px;word-break:break-word;line-height:1.4}
+.empty{text-align:center;padding:34px 18px;color:var(--muted)}
+.empty svg{width:34px;height:34px;opacity:.35;margin-bottom:10px}
+.empty p{margin:0;font-size:12.5px;line-height:1.5}
+
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+.stat{background:var(--surface);border:1px solid var(--stroke-2);border-radius:14px;padding:12px}
+.stat-val{font-size:22px;font-weight:800;letter-spacing:-.8px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat-lab{font-size:10px;font-weight:750;letter-spacing:.9px;text-transform:uppercase;color:var(--muted);margin-top:3px}
+
+/* ---------- 09 · SHADES ---------- */
+#shadeLayer{position:absolute;inset:0;z-index:70;pointer-events:none;opacity:0;transition:opacity .26s ease}
+#shadeLayer.open{pointer-events:auto;opacity:1}
+.shade-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.42);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px)}
+#os.light .shade-backdrop{background:rgba(20,30,50,.22)}
+.shade-panel{
+  position:absolute;left:0;right:0;top:0;
+  padding:calc(var(--safe-top) + 48px) 13px 16px;
+  transform:translateY(-26px);transition:transform .36s cubic-bezier(.2,.9,.25,1);
+  max-height:100%;overflow-y:auto;overscroll-behavior:contain;
+}
+#shadeLayer.open .shade-panel{transform:none}
+.shade-card{
+  border-radius:24px;padding:14px;
+  background:var(--glass-bg);border:1px solid var(--glass-br);
+  -webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);
+  box-shadow:0 24px 60px rgba(0,0,0,.5);
+}
+.shade-head{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.shade-head h3{margin:0;font-size:13px;font-weight:800;letter-spacing:.3px;flex:1}
+.cc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:12px}
+.cc-tile{
+  aspect-ratio:1;border-radius:17px;border:1px solid var(--stroke-2);
+  background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  cursor:pointer;color:var(--text);transition:background .22s,transform .12s,color .22s;padding:4px;
+}
+.cc-tile:active{transform:scale(.92)}
+.cc-tile svg{width:19px;height:19px}
+.cc-tile span{font-size:9px;font-weight:700;letter-spacing:.2px;text-align:center;line-height:1.15}
+.cc-tile.on{background:var(--accent);color:#04121a;border-color:transparent;box-shadow:0 6px 18px var(--accent-soft)}
+.slider-row{display:flex;align-items:center;gap:11px;padding:9px 0}
+.slider-row svg{width:16px;height:16px;color:var(--muted);flex:0 0 auto}
+.sim-note{font-size:10.5px;color:var(--muted);text-align:center;line-height:1.45;margin-top:4px}
+
+.notif{display:flex;gap:10px;padding:11px;border-radius:16px;background:var(--surface-2);border:1px solid var(--stroke-2);margin-bottom:8px;transition:transform .24s,opacity .24s}
+.notif.dismiss{transform:translateX(112%);opacity:0}
+.notif .n-ico{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;flex:0 0 auto}
+.notif .n-ico svg{width:15px;height:15px}
+.notif .n-body{flex:1;min-width:0}
+.notif .n-title{font-size:12.5px;font-weight:750;display:flex;justify-content:space-between;gap:8px}
+.notif .n-time{font-size:10px;font-weight:600;color:var(--muted);flex:0 0 auto}
+.notif .n-text{font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.4;word-break:break-word}
+
+/* ---------- 10 · TOASTS / DIALOG ---------- */
+#toastLayer{position:absolute;left:0;right:0;bottom:calc(var(--safe-bottom) + 92px);z-index:120;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;padding:0 16px}
+.toast{
+  max-width:100%;display:flex;align-items:center;gap:9px;padding:10px 15px;border-radius:14px;
+  background:rgba(18,22,30,.92);border:1px solid rgba(255,255,255,.14);
+  -webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
+  font-size:12.5px;font-weight:650;color:#eef2f8;
+  box-shadow:0 12px 34px rgba(0,0,0,.5);
+  animation:toastIn .32s cubic-bezier(.2,1.2,.4,1);
+}
+#os.light .toast{background:rgba(255,255,255,.95);color:#0b1220;border-color:rgba(0,0,0,.1)}
+.toast.out{animation:toastOut .26s ease forwards}
+.toast svg{width:15px;height:15px;flex:0 0 auto}
+.toast.ok svg{color:#4ade80}.toast.err svg{color:#f87171}.toast.info svg{color:var(--accent)}
+@keyframes toastIn{from{opacity:0;transform:translateY(14px) scale(.94)}to{opacity:1;transform:none}}
+@keyframes toastOut{to{opacity:0;transform:translateY(-8px) scale(.96)}}
+
+#dialogLayer{position:absolute;inset:0;z-index:140;display:none;align-items:center;justify-content:center;padding:24px}
+#dialogLayer.open{display:flex}
+.dialog-back{position:absolute;inset:0;background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.dialog{
+  position:relative;width:100%;max-width:330px;border-radius:22px;padding:18px;
+  background:var(--glass-bg);border:1px solid var(--glass-br);
+  -webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);
+  box-shadow:0 30px 70px rgba(0,0,0,.6);
+  animation:dlgIn .3s cubic-bezier(.2,1.2,.4,1);
+}
+#os.light .dialog{background:rgba(255,255,255,.94)}
+@keyframes dlgIn{from{opacity:0;transform:scale(.9) translateY(12px)}to{opacity:1;transform:none}}
+.dialog h4{margin:0 0 4px;font-size:15px;font-weight:800}
+.dialog p{margin:0 0 13px;font-size:12px;color:var(--muted);line-height:1.45}
+.dialog-actions{display:flex;gap:8px;margin-top:14px}
+.dialog-actions .btn{flex:1}
+
+/* ---------- 11 · RESPONSIVE ---------- */
+@media (min-width:760px) and (min-height:640px){
+  body{display:grid;place-items:center;background:radial-gradient(circle at 50% 42%,#0b1220,#000 72%)}
+  #os{
+    position:relative;inset:auto;
+    width:min(430px,94vw);height:min(900px,92vh);
+    border-radius:52px;
+    box-shadow:0 0 0 11px #0c0d11,0 0 0 13px #262a33,
+               0 44px 130px rgba(0,0,0,.9),0 0 110px rgba(34,211,238,.1);
+  }
+  #appWindow{border-radius:52px}
+}
+@media (max-width:359px){
+  .app-grid{gap:16px 4px}
+  .app-glyph{width:50px;height:50px;border-radius:15px}
+  .app-glyph svg{width:23px;height:23px}
+  .home-time{font-size:44px}
+  .dc-fields{grid-template-columns:1fr}
+  .dc-field.inline{grid-column:1/-1}
+}
+
+/* ---------- 12 · MOTION PREFERENCES ---------- */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+  #wallpaper::before{animation:none}
+}
+#os.noanim *,#os.noanim *::before,#os.noanim *::after{
+  animation-duration:.001ms!important;animation-iteration-count:1!important;
+  transition-duration:.001ms!important;
+}
+</style>
+</head>
+<body>
+<div id="os">
+
+  <!-- ============ WALLPAPER ============ -->
+  <div id="wallpaper"></div>
+  <div id="wallDim"></div>
+
+  <!-- ============ BOOT ============ -->
+  <div id="boot">
+    <div class="boot-glow">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h8l-1 8 10-12h-8z"/></svg>
+    </div>
+    <div class="boot-mark">ULTRA MAX SPEED<small>SKIBIDI PRO</small></div>
+    <div class="boot-bar"><i id="bootBar"></i></div>
+  </div>
+
+  <!-- ============ LOCK SCREEN ============ -->
+  <div id="lockScreen">
+    <div class="lock-time" id="lockTime">00:00</div>
+    <div class="lock-date" id="lockDate">—</div>
+    <div class="lock-chip">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
+      <span>Webhook Studio · Ready</span>
+    </div>
+    <div class="lock-shortcuts">
+      <button class="lock-sc" data-lockapp="studio" aria-label="Webhook Studio">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>
+      </button>
+      <button class="lock-sc" data-lockapp="activity" aria-label="Activity">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      </button>
+    </div>
+    <div class="lock-hint">Swipe up or tap to unlock</div>
+  </div>
+
+  <!-- ============ STATUS BAR ============ -->
+  <div id="statusBar">
+    <div class="sb-left"><span id="statusTime">00:00</span></div>
+    <div class="sb-right">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5a10 10 0 0 1 14 0"/><path d="M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19.5" r="1" fill="currentColor"/></svg>
+      <span class="battery"><i></i></span>
+    </div>
+  </div>
+
+  <!-- ============ DYNAMIC ISLAND ============ -->
+  <div id="island" role="button" tabindex="0" aria-label="Dynamic Island">
+    <div class="island-mini"><span class="dot"></span><span>SKIBIDI PRO</span></div>
+    <div class="island-body">
+      <div class="i-ico" id="islandIco">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h8l-1 8 10-12h-8z"/></svg>
+      </div>
+      <div class="i-txt">
+        <div class="i-title" id="islandTitle">Ultra Max Speed</div>
+        <div class="i-sub" id="islandSub">Webhook engine standing by</div>
+      </div>
+    </div>
+    <div class="island-progress" id="islandProgress"></div>
+  </div>
+
+  <!-- ============ HOME ============ -->
+  <div id="home">
+    <div class="home-clock">
+      <div class="home-greet" id="homeGreet">Hello</div>
+      <div class="home-time" id="homeTime">00:00</div>
+      <div class="home-sub" id="homeDate">—</div>
+    </div>
+    <div class="app-grid" id="appGrid"></div>
+    <div class="page-dots"><i class="on"></i><i></i></div>
+    <div class="dock" id="dock"></div>
+  </div>
+
+  <!-- ============ APP LAYER ============ -->
+  <div id="appLayer">
+    <div id="appWindow">
+      <div class="app-topbar">
+        <button class="icon-btn" id="appBack" aria-label="Back">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <div class="app-title" id="appTitle">App</div>
+        <div id="appActions" style="display:flex;gap:6px"></div>
+      </div>
+      <div class="app-body" id="appBody"></div>
+      <div class="app-footer" id="appFooter" hidden></div>
+    </div>
+  </div>
+
+  <!-- ============ SHADE (Notifications + Control Center) ============ -->
+  <div id="shadeLayer">
+    <div class="shade-backdrop" id="shadeBackdrop"></div>
+    <div class="shade-panel">
+      <div class="shade-card" id="shadeCard"></div>
+    </div>
+  </div>
+
+  <!-- ============ TOASTS + DIALOG ============ -->
+  <div id="toastLayer"></div>
+  <div id="dialogLayer">
+    <div class="dialog-back" id="dialogBack"></div>
+    <div class="dialog" id="dialogBox"></div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ==========================================================================
+   00 · UTILITIES
+   ========================================================================== */
+const $  = (s,r)=> (r||document).querySelector(s);
+const $$ = (s,r)=> Array.prototype.slice.call((r||document).querySelectorAll(s));
+const esc = v => String(v==null?'':v).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clamp = (v,a,b)=> Math.min(b,Math.max(a,v));
+const uid = ()=> Math.random().toString(36).slice(2,10);
+const nowMs = ()=> Date.now();
+
+function setText(sel, txt){
+  const el = typeof sel==='string' ? $(sel) : sel;
+  if(el && el.textContent !== txt) el.textContent = txt;
+}
+function setByPath(obj, path, val){
+  const p = path.split('.'); let o = obj;
+  for(let i=0;i<p.length-1;i++){ if(!o[p[i]]) o[p[i]]={}; o = o[p[i]]; }
+  o[p[p.length-1]] = val;
+}
+function getByPath(obj, path){
+  return path.split('.').reduce((o,k)=> (o==null?o:o[k]), obj);
+}
+function relTime(ts){
+  const d = Math.floor((nowMs()-ts)/1000);
+  if(d<5) return 'just now';
+  if(d<60) return d+'s ago';
+  if(d<3600) return Math.floor(d/60)+'m ago';
+  if(d<86400) return Math.floor(d/3600)+'h ago';
+  return new Date(ts).toLocaleDateString();
+}
+function hexToRgba(hex, a){
+  const h = (hex||'#22d3ee').replace('#','');
+  const v = h.length===3 ? h.split('').map(c=>c+c).join('') : h;
+  const n = parseInt(v,16);
+  if(isNaN(n)) return 'rgba(34,211,238,'+a+')';
+  return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')';
+}
+
+/* SVG icon library ------------------------------------------------------- */
+const svg = (d,extra)=> '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" '+(extra||'')+'>'+d+'</svg>';
+const ICO = {
+  send:     svg('<path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/>'),
+  bolt:     svg('<path d="M13 2 3 14h8l-1 8 10-12h-8z"/>'),
+  layers:   svg('<path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 17 9 5 9-5"/>'),
+  bookmark: svg('<path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1Z"/>'),
+  activity: svg('<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>'),
+  settings: svg('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/>'),
+  palette:  svg('<circle cx="13.5" cy="6.5" r=".9" fill="currentColor" stroke="none"/><circle cx="17.5" cy="10.5" r=".9" fill="currentColor" stroke="none"/><circle cx="8.5" cy="7.5" r=".9" fill="currentColor" stroke="none"/><circle cx="6.5" cy="12.5" r=".9" fill="currentColor" stroke="none"/><path d="M12 2a10 10 0 1 0 0 20 2 2 0 0 0 2-2 2 2 0 0 1 2-2h2a4 4 0 0 0 4-4 10 10 0 0 0-10-10Z"/>'),
+  x:        svg('<path d="M18 6 6 18M6 6l12 12"/>'),
+  plus:     svg('<path d="M12 5v14M5 12h14"/>'),
+  trash:    svg('<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>'),
+  copy:     svg('<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>'),
+  check:    svg('<path d="m20 6-11 11-5-5"/>'),
+  terminal: svg('<path d="m4 17 6-6-6-6"/><path d="M12 19h8"/>'),
+  shield:   svg('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>'),
+  download: svg('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/>'),
+  upload:   svg('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 8 5-5 5 5"/><path d="M12 3v12"/>'),
+  image:    svg('<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>'),
+  clock:    svg('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'),
+  wifi:     svg('<path d="M5 12.5a10 10 0 0 1 14 0"/><path d="M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19.5" r="1" fill="currentColor"/>'),
+  bluetooth:svg('<path d="m7 7 10 10-5 4V3l5 4L7 17"/>'),
+  moon:     svg('<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>'),
+  volume:   svg('<path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/>'),
+  sun:      svg('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'),
+  sparkles: svg('<path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><path d="m6.3 6.3 2.8 2.8M14.9 14.9l2.8 2.8M17.7 6.3l-2.8 2.8M9.1 14.9l-2.8 2.8"/>'),
+  wave:     svg('<path d="M2 12h3l2-6 3 12 3-9 2 5h7"/>'),
+  info:     svg('<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>'),
+  alert:    svg('<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/>'),
+  eye:      svg('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>'),
+  eyeoff:   svg('<path d="M9.9 4.2A10 10 0 0 1 12 4c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4.2"/><path d="M6.6 6.6A17 17 0 0 0 2 11s3.6 7 10 7a10 10 0 0 0 4.3-1"/><path d="m2 2 20 20"/>'),
+  sliders:  svg('<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3"/><path d="M1 14h6M9 8h6M17 16h6"/>'),
+  code:     svg('<path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/>'),
+  grid:     svg('<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>'),
+  chevron:  svg('<path d="m9 18 6-6-6-6"/>'),
+  refresh:  svg('<path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/>')
+};
+
+/* ==========================================================================
+   01 · STATE + PERSISTENCE
+   ========================================================================== */
+const LS_KEY = 'skibidi_pro_v1';
+
+const S = {
+  webhookUrl:'', rememberHook:false,
+  username:'', avatarUrl:'', content:'',
+  embed:{
+    on:false,title:'',description:'',color:'#22d3ee',
+    authorName:'',authorIcon:'',footerText:'',footerIcon:'',
+    image:'',thumbnail:'',timestamp:false,fields:[]
+  },
+  sound:true, volume:0.5, animations:true, glass:1,
+  accent:'#22d3ee', accent2:'#6366f1',
+  wallpaper:'aurora', dark:true,
+  templates:[], activity:[],
+  notifList:[]
+};
+
+function persist(){
+  try{
+    const data = {
+      rememberHook:S.rememberHook,
+      webhookUrl: S.rememberHook ? S.webhookUrl : '',
+      username:S.username, avatarUrl:S.avatarUrl,
+      embed:S.embed,
+      sound:S.sound, volume:S.volume, animations:S.animations, glass:S.glass,
+      accent:S.accent, accent2:S.accent2,
+      wallpaper:S.wallpaper, dark:S.dark,
+      templates:S.templates, activity:S.activity.slice(0,60)
+    };
+    localStorage.setItem(LS_KEY, JSON.stringify(data));
+  }catch(e){ /* storage may be blocked — fail silently */ }
+}
+function restore(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return;
+    const d = JSON.parse(raw);
+    if(d.rememberHook){ S.rememberHook = !!d.rememberHook; S.webhookUrl = d.webhookUrl || ''; }
+    if(typeof d.username==='string') S.username = d.username;
+    if(typeof d.avatarUrl==='string') S.avatarUrl = d.avatarUrl;
+    if(d.embed && typeof d.embed==='object'){
+      Object.keys(S.embed).forEach(k=>{ if(d.embed[k]!==undefined) S.embed[k]=d.embed[k]; });
+      if(!Array.isArray(S.embed.fields)) S.embed.fields = [];
+    }
+    ['sound','animations','dark'].forEach(k=>{ if(typeof d[k]==='boolean') S[k]=d[k]; });
+    ['volume','glass'].forEach(k=>{ if(typeof d[k]==='number') S[k]=d[k]; });
+    if(typeof d.accent==='string') S.accent = d.accent;
+    if(typeof d.accent2==='string') S.accent2 = d.accent2;
+    if(typeof d.wallpaper==='string') S.wallpaper = d.wallpaper;
+    if(Array.isArray(d.templates)) S.templates = d.templates;
+    if(Array.isArray(d.activity)) S.activity = d.activity;
+  }catch(e){}
+}
+
+/* ==========================================================================
+   02 · AUDIO ENGINE (procedural Minecraft-style UI sounds)
+   ========================================================================== */
+const Sound = {
+  ctx:null, master:null, last:0,
+  ensure(){
+    if(this.ctx){
+      if(this.ctx.state === 'suspended') this.ctx.resume().catch(()=>{});
+      return true;
+    }
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) return false;
+    try{
+      this.ctx = new AC();
+      this.master = this.ctx.createGain();
+      this.master.gain.value = S.volume * 0.32;
+      this.master.connect(this.ctx.destination);
+    }catch(e){ return false; }
+    return true;
+  },
+  setVolume(v){ if(this.master) this.master.gain.value = v * 0.32; },
+  tone(f1,f2,dur,type,vol,delay){
+    if(!S.sound) return;
+    if(!this.ensure()) return;
+    const t0 = this.ctx.currentTime + (delay||0);
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.type = type || 'sine';
+    o.frequency.setValueAtTime(Math.max(20,f1), t0);
+    if(f2 && f2 !== f1){
+      o.frequency.exponentialRampToValueAtTime(Math.max(20,f2), t0+dur);
+    }
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(Math.max(0.001,vol||0.2), t0+0.006);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+    o.connect(g); g.connect(this.master);
+    o.start(t0); o.stop(t0+dur+0.04);
+  },
+  click(){
+    const n = performance.now();
+    if(n - this.last < 42) return;
+    this.last = n;
+    this.tone(920, 620, 0.055, 'triangle', 0.18);
+  },
+  open(){ this.tone(400, 760, 0.15, 'sine', 0.16); this.tone(700, 1100, 0.1, 'triangle', 0.07, 0.05); },
+  close(){ this.tone(700, 340, 0.14, 'sine', 0.13); },
+  toggleOn(){ this.tone(1180, 1500, 0.05, 'square', 0.07); },
+  toggleOff(){ this.tone(900, 620, 0.06, 'square', 0.07); },
+  notify(){ this.tone(880, 880, 0.07, 'sine', 0.15); this.tone(1320, 1320, 0.09, 'sine', 0.12, 0.09); },
+  success(){ this.tone(660, 660, 0.08, 'sine', 0.16); this.tone(880, 880, 0.08, 'sine', 0.16, 0.08); this.tone(1320, 1320, 0.14, 'sine', 0.14, 0.16); },
+  error(){ this.tone(240, 150, 0.22, 'sawtooth', 0.11); }
+};
+
+/* ==========================================================================
+   03 · WALLPAPERS + THEME
+   ========================================================================== */
+const WALLPAPERS = {
+  aurora: { name:'Aurora',   dark:['#05060a','#0ea5e9','#7c3aed','#06b6d4'], light:['#eef4ff','#7dd3fc','#c4b5fd','#a5f3fc'] },
+  nebula: { name:'Nebula',   dark:['#06030d','#8b5cf6','#ec4899','#3b82f6'], light:['#f5f0ff','#c4b5fd','#f9a8d4','#bfdbfe'] },
+  matrix: { name:'Matrix',   dark:['#03060a','#22c55e','#0e7490','#065f46'], light:['#eefaf2','#86efac','#a5f3fc','#bbf7d0'] },
+  ember:  { name:'Ember',    dark:['#0a0505','#f97316','#db2777','#7c2d12'], light:['#fff5ed','#fdba74','#f9a8d4','#fecaca'] },
+  graphite:{name:'Graphite', dark:['#050506','#64748b','#334155','#1e293b'], light:['#f4f6f9','#cbd5e1','#94a3b8','#e2e8f0'] },
+  ocean:  { name:'Ocean',    dark:['#03080f','#0284c7','#06b6d4','#1e3a8a'], light:['#eff8ff','#93c5fd','#67e8f9','#c7d2fe'] }
+};
+const ACCENTS = [
+  { name:'Cyan',   a:'#22d3ee', b:'#6366f1' },
+  { name:'Violet', a:'#a78bfa', b:'#ec4899' },
+  { name:'Lime',   a:'#a3e635', b:'#22c55e' },
+  { name:'Amber',  a:'#fbbf24', b:'#f97316' },
+  { name:'Rose',   a:'#fb7185', b:'#e11d48' },
+  { name:'Ice',    a:'#7dd3fc', b:'#38bdf8' }
+];
+
+const osEl = $('#os');
+
+function applyTheme(){
+  osEl.style.setProperty('--accent', S.accent);
+  osEl.style.setProperty('--accent-2', S.accent2);
+  osEl.style.setProperty('--accent-soft', hexToRgba(S.accent, 0.18));
+  osEl.style.setProperty('--blur', (10 + S.glass * 26).toFixed(0) + 'px');
+  osEl.classList.toggle('light', !S.dark);
+  osEl.classList.toggle('noanim', !S.animations);
+  applyWallpaper();
+  Sound.setVolume(S.volume);
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.setAttribute('content', S.dark ? '#05060a' : '#e9eef6');
+}
+function applyWallpaper(){
+  const w = WALLPAPERS[S.wallpaper] || WALLPAPERS.aurora;
+  const p = S.dark ? w.dark : w.light;
+  const el = $('#wallpaper');
+  el.style.setProperty('--wbase', p[0]);
+  el.style.setProperty('--w1', p[1]);
+  el.style.setProperty('--w2', p[2]);
+  el.style.setProperty('--w3', p[3]);
+}
+
+/* ==========================================================================
+   04 · CLOCK / REAL TIME
+   ========================================================================== */
+let lastMinute = -1;
+function updateClock(){
+  const d = new Date();
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mm = String(d.getMinutes()).padStart(2,'0');
+  const t = hh + ':' + mm;
+
+  setText('#statusTime', t);
+  setText('#lockTime', t);
+  setText('#homeTime', t);
+
+  if(d.getMinutes() !== lastMinute){
+    lastMinute = d.getMinutes();
+    const dateStr = d.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
+    setText('#lockDate', dateStr);
+    setText('#homeDate', dateStr);
+    const h = d.getHours();
+    const greet = h<5 ? 'Good night' : h<12 ? 'Good morning' : h<17 ? 'Good afternoon' : h<22 ? 'Good evening' : 'Good night';
+    setText('#homeGreet', greet);
+    osEl.classList.toggle('night', h < 6 || h >= 20);
+  }
+}
+
+/* ==========================================================================
+   05 · DYNAMIC ISLAND
+   ========================================================================== */
+const Island = {
+  el: $('#island'),
+  progress: $('#islandProgress'),
+  icoEl: $('#islandIco'),
+  titleEl: $('#islandTitle'),
+  subEl: $('#islandSub'),
+  timer: null,
+  expanded: false,
+
+  set(state, title, sub, iconHtml, progressColor){
+    clearTimeout(this.timer);
+    if(iconHtml) this.icoEl.innerHTML = iconHtml;
+    if(title) this.titleEl.textContent = title;
+    if(sub) this.subEl.textContent = sub;
+    this.el.classList.remove('expanded','wide');
+    if(state === 'expanded') this.el.classList.add('expanded');
+    else if(state === 'wide') this.el.classList.add('wide');
+    if(progressColor) this.progress.style.background = progressColor;
+  },
+  progressSet(pct){
+    this.progress.style.width = clamp(pct,0,100) + '%';
+  },
+  reset(){
+    this.progressSet(0);
+    this.el.classList.remove('expanded','wide');
+  },
+  flash(state, title, sub, iconHtml, color, ms){
+    this.set(state, title, sub, iconHtml, color);
+    this.expanded = true;
+    this.timer = setTimeout(()=>{ this.reset(); this.expanded = false; }, ms || 2600);
+  },
+  toggle(){
+    if(this.el.classList.contains('expanded') || this.el.classList.contains('wide')){
+      this.reset();
+    }else{
+      this.set('expanded','Ultra Max Speed','Webhook engine standing by · tap to dismiss', ICO.bolt);
+      this.timer = setTimeout(()=>this.reset(), 4200);
+    }
+  }
+};
+Island.el.addEventListener('click', ()=>{ Sound.click(); Island.toggle(); });
+
+/* ==========================================================================
+   06 · TOASTS + NOTIFICATIONS
+   ========================================================================== */
+function toast(msg, kind){
+  const layer = $('#toastLayer');
+  const el = document.createElement('div');
+  el.className = 'toast ' + (kind||'info');
+  const icon = kind==='ok' ? ICO.check : kind==='err' ? ICO.alert : ICO.info;
+  el.innerHTML = icon + '<span>' + esc(msg) + '</span>';
+  layer.appendChild(el);
+  setTimeout(()=>{
+    el.classList.add('out');
+    setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); }, 280);
+  }, 2600);
+  if(layer.children.length > 3) layer.removeChild(layer.firstChild);
+}
+
+function pushNotification(kind, title, text){
+  S.notifList.unshift({ id:uid(), kind:kind, title:title, text:text, ts:nowMs() });
+  if(S.notifList.length > 30) S.notifList.length = 30;
+  renderHomeBadges();
+  if($('#shadeLayer').classList.contains('open') && currentShade === 'notif') renderShade();
+  if(kind === 'success') Sound.notify();
+}
+
+/* ==========================================================================
+   07 · APP REGISTRY
+   ========================================================================== */
+const APPS = {
+  quick:     { name:'Quick Send',     icon:ICO.bolt,     grad:'linear-gradient(140deg,#22d3ee,#0ea5e9)' },
+  studio:    { name:'Webhook Studio', icon:ICO.send,     grad:'linear-gradient(140deg,#6366f1,#8b5cf6)' },
+  embed:     { name:'Embed Studio',   icon:ICO.layers,   grad:'linear-gradient(140deg,#ec4899,#f43f5e)' },
+  templates: { name:'Templates',      icon:ICO.bookmark, grad:'linear-gradient(140deg,#22c55e,#10b981)' },
+  activity:  { name:'Activity',       icon:ICO.activity, grad:'linear-gradient(140deg,#f59e0b,#f97316)' },
+  tools:     { name:'Tools',          icon:ICO.terminal, grad:'linear-gradient(140deg,#64748b,#334155)' },
+  themes:    { name:'Themes',         icon:ICO.palette,  grad:'linear-gradient(140deg,#a78bfa,#c084fc)' },
+  settings:  { name:'Settings',       icon:ICO.settings, grad:'linear-gradient(140deg,#475569,#1e293b)' }
+};
+const HOME_APPS = ['quick','studio','embed','templates','activity','tools','themes','settings'];
+const DOCK_APPS = ['quick','studio','activity','settings'];
+
+function appIconHTML(id){
+  const a = APPS[id];
+  return '<button class="app-icon" data-app="'+id+'">' +
+    '<span class="app-glyph" style="background:'+a.grad+'">'+a.icon+'</span>' +
+    '<span class="app-name">'+esc(a.name)+'</span>' +
+  '</button>';
+}
+
+function renderHome(){
+  $('#appGrid').innerHTML = HOME_APPS.map(appIconHTML).join('');
+  $('#dock').innerHTML = DOCK_APPS.map(appIconHTML).join('');
+  renderHomeBadges();
+}
+function renderHomeBadges(){
+  const n = S.notifList.length;
+  const grid = $('#appGrid');
+  if(!grid) return;
+  const btn = grid.querySelector('[data-app="activity"] .app-glyph');
+  if(!btn) return;
+  const old = btn.querySelector('.badge');
+  if(old) old.remove();
+  const sent = S.activity.length;
+  if(sent > 0){
+    const b = document.createElement('span');
+    b.className = 'badge';
+    b.textContent = sent > 9 ? '9+' : sent;
+    btn.appendChild(b);
+  }
+}
+
+/* ==========================================================================
+   08 · APP FRAMEWORK
+   ========================================================================== */
+let currentApp = null;
+const appLayer = $('#appLayer');
+const appWindow = $('#appWindow');
+const appBody = $('#appBody');
+const appFooter = $('#appFooter');
+const appTitle = $('#appTitle');
+const appActions = $('#appActions');
+
+function setOrigin(el){
+  const or = osEl.getBoundingClientRect();
+  let ox = 50, oy = 86;
+  if(el){
+    const r = el.getBoundingClientRect();
+    ox = ((r.left + r.width/2 - or.left) / or.width) * 100;
+    oy = ((r.top + r.height/2 - or.top) / or.height) * 100;
+  }
+  appWindow.style.setProperty('--ox', ox.toFixed(1)+'%');
+  appWindow.style.setProperty('--oy', oy.toFixed(1)+'%');
+}
+
+function openApp(id, originEl){
+  const app = APPS[id];
+  if(!app) return;
+  Sound.open();
+  currentApp = id;
+  setOrigin(originEl);
+
+  appTitle.textContent = app.name;
+  appActions.innerHTML = '';
+  appFooter.hidden = true;
+  appFooter.innerHTML = '';
+  appBody.className = 'app-body';
+
+  renderApp(id);
+
+  $('#home').classList.add('push');
+  appLayer.classList.add('open');
+  if(navigator.vibrate) { try{ navigator.vibrate(8); }catch(e){} }
+}
+
+function closeApp(){
+  if(!currentApp) return;
+  Sound.close();
+  appLayer.classList.remove('open');
+  $('#home').classList.remove('push');
+  setTimeout(()=>{
+    if(!appLayer.classList.contains('open')){
+      appBody.innerHTML = '';
+      appFooter.innerHTML = '';
+      appFooter.hidden = true;
+      currentApp = null;
+    }
+  }, 460);
+}
+$('#appBack').addEventListener('click', closeApp);
+
+/* ==========================================================================
+   09 · WEBHOOK ENGINE
+   ========================================================================== */
+let sending = false;
+let abortCtrl = null;
+let rateUntil = 0;
+let lastResult = null;
+
+const WEBHOOK_RE = /^https:\/\/(?:[\w-]+\.)?discord(?:app)?\.com\/api\/webhooks\/\d{5,}\/[\w-]{20,}/i;
+
+function validateWebhook(url){
+  const u = (url||'').trim();
+  if(!u) return { ok:false, reason:'No webhook URL provided.' };
+  if(!/^https:\/\//i.test(u)) return { ok:false, reason:'URL must start with https://' };
+  if(!WEBHOOK_RE.test(u)) return { ok:false, reason:'Not a recognised Discord webhook URL.' };
+  return { ok:true, reason:'Valid Discord webhook URL.' };
+}
+function maskWebhook(url){
+  const u = (url||'').trim();
+  if(!u) return '—';
+  const m = u.match(/^(https:\/\/(?:[\w-]+\.)?discord(?:app)?\.com\/api\/webhooks\/\d{5,})\/(.+)$/i);
+  if(!m) return u.length > 26 ? u.slice(0,26)+'…' : u;
+  const token = m[2];
+  return m[1] + '/' + token.slice(0,3) + '••••••••••••';
+}
+
+function buildPayload(){
+  const p = {};
+  const content = S.content.trim();
+  if(content) p.content = S.content;
+  if(S.username.trim()) p.username = S.username.trim();
+  if(S.avatarUrl.trim()) p.avatar_url = S.avatarUrl.trim();
+
+  if(S.embed.on){
+    const e = S.embed;
+    const emb = {};
+    if(e.title.trim()) emb.title = e.title.trim().slice(0,256);
+    if(e.description.trim()) emb.description = e.description.trim().slice(0,4096);
+    if(e.color && /^#[0-9a-f]{6}$/i.test(e.color)) emb.color = parseInt(e.color.slice(1),16);
+    if(e.authorName.trim()) emb.author = { name: e.authorName.trim().slice(0,256) };
+    if(e.authorName.trim() && e.authorIcon.trim()) emb.author.icon_url = e.authorIcon.trim();
+    if(e.footerText.trim()) emb.footer = { text: e.footerText.trim().slice(0,2048) };
+    if(e.footerText.trim() && e.footerIcon.trim()) emb.footer.icon_url = e.footerIcon.trim();
+    if(e.image.trim()) emb.image = { url: e.image.trim() };
+    if(e.thumbnail.trim()) emb.thumbnail = { url: e.thumbnail.trim() };
+    if(e.timestamp) emb.timestamp = new Date().toISOString();
+    const fields = (e.fields||[]).filter(f => (f.name||'').trim() && (f.value||'').trim());
+    if(fields.length){
+      emb.fields = fields.slice(0,25).map(f=>({
+        name: f.name.trim().slice(0,256),
+        value: f.value.trim().slice(0,1024),
+        inline: !!f.inline
+      }));
+    }
+    if(Object.keys(emb).length) p.embeds = [emb];
+  }
+  return p;
+}
+
+function payloadHasContent(p){
+  return !!(p && (p.content || (p.embeds && p.embeds.length)));
+}
+
+function setSendState(state, label){
+  $$('[data-send]').forEach(b=>{
+    b.disabled = (state === 'sending') || (rateUntil > nowMs());
+    if(state === 'sending'){
+      b.innerHTML = '<span class="spin" style="border-top-color:#04121a"></span><span>Sending…</span>';
+    }else if(state === 'cancel'){
+      b.disabled = false;
+      b.innerHTML = ICO.x + '<span>Cancel</span>';
+    }else{
+      const label2 = label || 'Send Webhook';
+      b.innerHTML = ICO.send + '<span>' + esc(label2) + '</span>';
+    }
+  });
+  const st = $('#sendStatus');
+  if(st){
+    if(state === 'sending'){ st.innerHTML = '<span class="pill info">Sending</span>'; }
+    else if(state === 'success'){ st.innerHTML = '<span class="pill ok">Success</span>'; }
+    else if(state === 'error'){ st.innerHTML = '<span class="pill err">Failed</span>'; }
+    else { st.innerHTML = '<span class="pill info">Idle</span>'; }
+  }
+  const cancelBtn = $('#cancelBtn');
+  if(cancelBtn) cancelBtn.hidden = (state !== 'sending');
+}
+
+async function sendWebhook(opts){
+  opts = opts || {};
+  if(sending){
+    toast('A request is already in flight','info');
+    return;
+  }
+  if(rateUntil > nowMs()){
+    const secs = ((rateUntil - nowMs())/1000).toFixed(1);
+    toast('Rate limited — retry in ' + secs + 's','err');
+    return;
+  }
+
+  const url = S.webhookUrl.trim();
+  const v = validateWebhook(url);
+  if(!v.ok){
+    toast(v.reason, 'err');
+    Island.flash('wide','Invalid webhook','Check the URL in Webhook Studio', ICO.alert, 'linear-gradient(90deg,#ef4444,#f97316)', 2600);
+    Sound.error();
+    pushNotification('error','Webhook rejected', v.reason);
+    return;
+  }
+
+  let payload = buildPayload();
+  if(opts.useEditor && payloadDirty){
+    const box = $('#payloadBox');
+    if(box){
+      try{
+        payload = JSON.parse(box.value);
+      }catch(err){
+        toast('Payload JSON is invalid','err');
+        Sound.error();
+        return;
+      }
+    }
+  }
+  if(!payloadHasContent(payload)){
+    toast('Add a message or an embed first','err');
+    Sound.error();
+    return;
+  }
+
+  sending = true;
+  abortCtrl = ('AbortController' in window) ? new AbortController() : null;
+  const started = performance.now();
+  setSendState('sending');
+  Island.set('wide','Sending webhook…','Preparing request', '<span class="spin"></span>', 'linear-gradient(90deg,#22d3ee,#6366f1)');
+  Island.progressSet(20);
+
+  let pctTimer = setInterval(()=>{
+    const cur = parseFloat(Island.progress.style.width) || 20;
+    if(cur < 85) Island.progressSet(cur + 6);
+  }, 140);
+
+  try{
+    const sep = url.indexOf('?') >= 0 ? '&' : '?';
+    const res = await fetch(url + sep + 'wait=true', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify(payload),
+      signal: abortCtrl ? abortCtrl.signal : undefined
+    });
+
+    const ms = Math.round(performance.now() - started);
+    Island.progressSet(100);
+    clearInterval(pctTimer);
+
+    if(res.status === 429){
+      let ra = parseFloat(res.headers.get('Retry-After') || '0');
+      let body = {};
+      try{ body = await res.json(); }catch(e){}
+      if(!ra && body && body.retry_after) ra = parseFloat(body.retry_after);
+      if(!ra || isNaN(ra)) ra = 1;
+      rateUntil = nowMs() + Math.ceil(ra * 1000);
+      throw new Error('Rate limited (429). Retry in ' + ra.toFixed(1) + 's');
+    }
+
+    if(!res.ok){
+      let detail = '';
+      try{
+        const txt = await res.text();
+        if(txt){
+          try{
+            const j = JSON.parse(txt);
+            detail = j.message || txt.slice(0,140);
+            if(j.errors) detail += ' · ' + JSON.stringify(j.errors).slice(0,140);
+          }catch(e){ detail = txt.slice(0,140); }
+        }
+      }catch(e){}
+      throw new Error('HTTP ' + res.status + ' ' + (res.statusText||'') + (detail ? ' — ' + detail : ''));
+    }
+
+    /* success */
+    lastResult = { status:'success', ms:ms, code:res.status, at:nowMs(), message:'Delivered' };
+    recordActivity('success', ms, res.status, 'Delivered in ' + ms + 'ms');
+    setSendState('success');
+    Island.flash('expanded','Delivered','Webhook sent in ' + ms + 'ms', ICO.check, 'linear-gradient(90deg,#22c55e,#10b981)', 2800);
+    Sound.success();
+    toast('Webhook delivered · ' + ms + 'ms','ok');
+    pushNotification('success','Webhook delivered','Message sent in ' + ms + 'ms');
+
+  }catch(err){
+    clearInterval(pctTimer);
+    Island.progressSet(100);
+    const ms = Math.round(performance.now() - started);
+
+    if(err && err.name === 'AbortError'){
+      lastResult = { status:'cancelled', ms:ms, code:0, at:nowMs(), message:'Cancelled by user' };
+      recordActivity('cancelled', ms, 0, 'Cancelled by user');
+      setSendState('idle');
+      Island.flash('wide','Cancelled','Request aborted', ICO.x, 'linear-gradient(90deg,#64748b,#475569)', 2000);
+      toast('Request cancelled','info');
+    }else{
+      const msg = (err && err.message) ? err.message : 'Network error';
+      const friendly = /Failed to fetch|NetworkError|Load failed/i.test(msg)
+        ? 'Network / CORS blocked. Serve the file over http:// or check your connection.'
+        : msg;
+      lastResult = { status:'error', ms:ms, code:0, at:nowMs(), message:friendly };
+      recordActivity('error', ms, 0, friendly);
+      setSendState('error');
+      Island.flash('expanded','Delivery failed', friendly.slice(0,44), ICO.alert, 'linear-gradient(90deg,#ef4444,#f97316)', 3400);
+      Sound.error();
+      toast(friendly, 'err');
+      pushNotification('error','Webhook failed', friendly);
+    }
+  }finally{
+    sending = false;
+    abortCtrl = null;
+    setTimeout(()=>{ if(!sending) setSendState('idle'); }, 1400);
+    updateToolStatus();
+  }
+}
+
+function recordActivity(status, ms, code, message){
+  S.activity.unshift({
+    id: uid(), ts: nowMs(), status: status, ms: ms, code: code,
+    message: message, hook: maskWebhook(S.webhookUrl)
+  });
+  if(S.activity.length > 60) S.activity.length = 60;
+  persist();
+  renderHomeBadges();
+  if(currentApp === 'activity') renderApp('activity');
+}
+
+function cancelSend(){
+  if(abortCtrl){ try{ abortCtrl.abort(); }catch(e){} }
+}
+
+/* ==========================================================================
+   10 · LIVE PREVIEW RENDERER
+   ========================================================================== */
+function previewHTML(){
+  const name = S.username.trim() || 'Skibidi Pro';
+  const av = S.avatarUrl.trim();
+  const initial = (name[0]||'S').toUpperCase();
+  const avatarInner = av ? '<img src="'+esc(av)+'" alt="" onerror="this.remove()">' : initial;
+
+  const e = S.embed;
+  let embedHTML = '';
+  if(e.on){
+    const fields = (e.fields||[]).filter(f=>(f.name||'').trim() || (f.value||'').trim());
+    const has = e.title.trim() || e.description.trim() || e.image.trim() || e.thumbnail.trim() ||
+                e.authorName.trim() || e.footerText.trim() || fields.length || e.timestamp;
+    if(has){
+      const color = /^#[0-9a-f]{6}$/i.test(e.color) ? e.color : '#22d3ee';
+      const authorHTML = e.authorName.trim()
+        ? '<div class="dc-author">' + (e.authorIcon.trim() ? '<img src="'+esc(e.authorIcon)+'" alt="" onerror="this.remove()">' : '') + esc(e.authorName) + '</div>'
+        : '';
+      const fieldsHTML = fields.length
+        ? '<div class="dc-fields">' + fields.map(f=>
+            '<div class="dc-field'+(f.inline?' inline':' full')+'">' +
+              '<div class="dc-field-name">'+esc(f.name||'Field')+'</div>' +
+              '<div class="dc-field-val">'+esc(f.value||'')+'</div>' +
+            '</div>').join('') + '</div>'
+        : '';
+      const footerBits = [];
+      if(e.footerIcon.trim()) footerBits.push('<img src="'+esc(e.footerIcon)+'" alt="" onerror="this.remove()">');
+      if(e.footerText.trim()) footerBits.push('<span>'+esc(e.footerText)+'</span>');
+      if(e.timestamp) footerBits.push('<span>• '+ new Date().toLocaleString() +'</span>');
+      const footerHTML = footerBits.length ? '<div class="dc-footer">'+footerBits.join('')+'</div>' : '';
+
+      embedHTML =
+        '<div class="dc-embed" style="border-left-color:'+color+'">' +
+          '<div class="dc-embed-main">' +
+            authorHTML +
+            (e.title.trim() ? '<div class="dc-title">'+esc(e.title)+'</div>' : '') +
+            (e.description.trim() ? '<div class="dc-desc">'+esc(e.description)+'</div>' : '') +
+            fieldsHTML +
+            (e.image.trim() ? '<img class="dc-img" src="'+esc(e.image)+'" alt="" onerror="this.remove()">' : '') +
+            footerHTML +
+          '</div>' +
+          (e.thumbnail.trim() ? '<img class="dc-thumb" src="'+esc(e.thumbnail)+'" alt="" onerror="this.remove()">' : '') +
+        '</div>';
+    }
+  }
+
+  return '<div class="dc-wrap"><div class="dc-msg">' +
+      '<div class="dc-avatar">'+avatarInner+'</div>' +
+      '<div class="dc-body">' +
+        '<div class="dc-head"><span class="dc-name">'+esc(name)+'</span><span class="dc-bot">BOT</span>' +
+          '<span class="dc-time">Today at '+ new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) +'</span></div>' +
+        (S.content.trim() ? '<div class="dc-content">'+esc(S.content)+'</div>' : '<div class="dc-content" style="opacity:.4">Message content…</div>') +
+        embedHTML +
+      '</div>' +
+    '</div></div>';
+}
+
+/* ==========================================================================
+   11 · SHARED UI PIECES
+   ========================================================================== */
+function embedFieldsEditorHTML(){
+  const fields = S.embed.fields;
+  if(!fields.length){
+    return '<div class="empty" style="padding:18px 10px"><p style="font-size:11.5px">No fields yet — add up to 25.</p></div>';
+  }
+  return fields.map((f,i)=>
+    '<div class="fb-item">' +
+      '<div class="fb-head">' +
+        '<span class="fb-idx">Field '+(i+1)+'</span>' +
+        '<button class="icon-btn" data-act="field-toggle" data-idx="'+i+'" style="width:28px;height:28px" title="Toggle inline">' +
+          (f.inline ? ICO.check : ICO.grid) + '</button>' +
+        '<button class="icon-btn" data-act="field-del" data-idx="'+i+'" style="width:28px;height:28px" title="Remove">'+ICO.trash+'</button>' +
+      '</div>' +
+      '<input class="input" data-bind="embed.fields.'+i+'.name" placeholder="Field name" value="'+esc(f.name)+'" style="margin-bottom:7px">' +
+      '<input class="input" data-bind="embed.fields.'+i+'.value" placeholder="Field value" value="'+esc(f.value)+'">' +
+    '</div>'
+  ).join('');
+}
+
+/* ==========================================================================
+   12 · APP RENDERERS
+   ========================================================================== */
+
+/* ---------- 12.1 QUICK SEND ---------- */
+const QUICK_PRESETS = [
+  { label:'Deploy OK',  text:'✅ **Deployment complete** — build shipped successfully.' },
+  { label:'Alert',      text:'⚠️ **Attention required** — something needs a look.' },
+  { label:'Ping',       text:'🛰️ Ping from ULTRA MAX SPEED — all systems nominal.' },
+  { label:'Done',       text:'🏁 Task finished. Nothing else to report.' }
+];
+
+function renderQuick(){
+  appBody.innerHTML =
+    '<div class="card">' +
+      '<div class="card-title">'+ICO.bolt+' Fast Send</div>' +
+      '<div class="field">' +
+        '<div class="label">Message <span class="cnt" id="charCountQuick">0/2000</span></div>' +
+        '<textarea class="textarea" id="quickContent" data-bind="content" placeholder="Type a message and hit send…" rows="4">'+esc(S.content)+'</textarea>' +
+      '</div>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:6px">' +
+        QUICK_PRESETS.map((p,i)=>'<button class="chip" data-act="quick-preset" data-idx="'+i+'">'+esc(p.label)+'</button>').join('') +
+        '<button class="chip" data-act="quick-clear">'+ICO.x+' Clear</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="card">' +
+      '<div class="card-title">'+ICO.wave+' Webhook</div>' +
+      '<div class="field" style="margin-bottom:0">' +
+        '<div class="label">Endpoint <span class="cnt">'+(S.webhookUrl ? 'set' : 'empty')+'</span></div>' +
+        '<input class="input mono" data-bind="webhookUrl" type="password" placeholder="https://discord.com/api/webhooks/…" value="'+esc(S.webhookUrl)+'">' +
+        '<div style="font-size:11px;color:var(--muted);margin-top:5px">'+(S.webhookUrl ? esc(maskWebhook(S.webhookUrl)) : 'Open Webhook Studio to configure.')+'</div>' +
+      '</div>' +
+    '</div>' +
+    '<div id="quickPreview">' + previewHTML() + '</div>';
+
+  appFooter.hidden = false;
+  appFooter.innerHTML =
+    '<button class="btn btn-primary btn-grow" data-send data-act="send">'+ICO.send+'<span>Send Now</span></button>' +
+    '<button class="btn" data-act="cancel" id="cancelBtn" hidden>'+ICO.x+'</button>';
+
+  appBody.className = 'app-body has-footer';
+  updateQuickCounter();
+}
+function updateQuickCounter(){
+  const el = $('#charCountQuick');
+  if(el){
+    el.textContent = S.content.length + '/2000';
+    el.className = 'cnt' + (S.content.length > 2000 ? ' over' : S.content.length > 1800 ? ' warn' : '');
+  }
+}
+
+/* ---------- 12.2 WEBHOOK STUDIO ---------- */
+let studioTab = 'compose';
+let payloadDirty = false;
+
+function renderStudio(){
+  appBody.innerHTML =
+    '<div class="seg" id="studioTabs">' +
+      '<button data-act="studio-tab" data-tab="compose" class="'+(studioTab==='compose'?'active':'')+'">Message</button>' +
+      '<button data-act="studio-tab" data-tab="embed" class="'+(studioTab==='embed'?'active':'')+'">Embed</button>' +
+      '<button data-act="studio-tab" data-tab="preview" class="'+(studioTab==='preview'?'active':'')+'">Preview</button>' +
+      '<button data-act="studio-tab" data-tab="payload" class="'+(studioTab==='payload'?'active':'')+'">Payload</button>' +
+    '</div>' +
+
+    /* ---- compose ---- */
+    '<div class="tabpane" data-pane="compose" '+(studioTab!=='compose'?'hidden':'')+'>' +
+      '<div class="card">' +
+        '<div class="card-title">'+ICO.shield+' Webhook Endpoint</div>' +
+        '<div class="field">' +
+          '<div class="label">URL <button class="chip" data-act="toggle-reveal" id="revealBtn" style="padding:2px 8px;font-size:10px">'+ICO.eye+'</button></div>' +
+          '<input class="input mono" id="hookInput" type="password" data-bind="webhookUrl" placeholder="https://discord.com/api/webhooks/…" value="'+esc(S.webhookUrl)+'">' +
+        '</div>' +
+        '<div style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px">' +
+          ICO.info + '<span id="hookMask">'+esc(maskWebhook(S.webhookUrl))+'</span>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="card">' +
+        '<div class="card-title">'+ICO.sparkles+' Identity</div>' +
+        '<div class="field"><div class="label">Username override</div>' +
+          '<input class="input" data-bind="username" placeholder="Skibidi Pro" value="'+esc(S.username)+'"></div>' +
+        '<div class="field" style="margin-bottom:0"><div class="label">Avatar URL</div>' +
+          '<input class="input" data-bind="avatarUrl" placeholder="https://…" value="'+esc(S.avatarUrl)+'"></div>' +
+      '</div>' +
+
+      '<div class="card">' +
+        '<div class="card-title">'+ICO.send+' Message</div>' +
+        '<div class="field" style="margin-bottom:0">' +
+          '<div class="label">Content <span class="cnt" id="charCount">'+S.content.length+'/2000</span></div>' +
+          '<textarea class="textarea" data-bind="content" placeholder="What do you want to send?" rows="5">'+esc(S.content)+'</textarea>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+
+    /* ---- embed ---- */
+    '<div class="tabpane" data-pane="embed" '+(studioTab!=='embed'?'hidden':'')+'>' +
+      '<div class="card">' +
+        '<div class="setting-row" style="padding-top:0">' +
+          '<div class="sr-txt"><div class="sr-name">Enable embed</div>' +
+          '<div class="sr-desc">Attach a rich embed to the message</div></div>' +
+          '<button class="switch '+(S.embed.on?'on':'')+'" data-act="embed-toggle" aria-label="Toggle embed"></button>' +
+        '</div>' +
+      '</div>' +
+      '<div id="embedEditor">' + embedEditorHTML() + '</div>' +
+    '</div>' +
+
+    /* ---- preview ---- */
+    '<div class="tabpane" data-pane="preview" '+(studioTab!=='preview'?'hidden':'')+'>' +
+      '<div id="previewRoot">' + previewHTML() + '</div>' +
+      '<div class="card" style="margin-top:12px">' +
+        '<div class="card-title">'+ICO.info+' Payload summary</div>' +
+        '<div id="payloadSummary" style="font-size:12px;color:var(--muted);line-height:1.6">' + payloadSummaryHTML() + '</div>' +
+      '</div>' +
+    '</div>' +
+
+    /* ---- payload ---- */
+    '<div class="tabpane" data-pane="payload" '+(studioTab!=='payload'?'hidden':'')+'>' +
+      '<div class="card">' +
+        '<div class="card-title">'+ICO.code+' Raw Payload JSON</div>' +
+        '<textarea class="textarea mono" id="payloadBox" rows="12" spellcheck="false">'+esc(JSON.stringify(buildPayload(), null, 2))+'</textarea>' +
+        '<div style="display:flex;gap:7px;margin-top:9px;flex-wrap:wrap">' +
+          '<button class="btn btn-sm" data-act="payload-format">'+ICO.sparkles+' Format</button>' +
+          '<button class="btn btn-sm" data-act="payload-sync">'+ICO.refresh+' Sync from form</button>' +
+          '<button class="btn btn-sm" data-act="payload-copy">'+ICO.copy+' Copy</button>' +
+        '</div>' +
+        '<div id="payloadHint" style="font-size:11px;color:var(--muted);margin-top:8px">Edits here override the form when you send.</div>' +
+      '</div>' +
+    '</div>';
+
+  appFooter.hidden = false;
+  appFooter.innerHTML =
+    '<button class="btn btn-primary btn-grow" data-send data-act="send">'+ICO.send+'<span>Send Webhook</span></button>' +
+    '<button class="btn" data-act="save-template" title="Save template">'+ICO.bookmark+'</button>' +
+    '<button class="btn" data-act="cancel" id="cancelBtn" hidden>'+ICO.x+'</button>';
+
+  appBody.className = 'app-body has-footer';
+  updateCharCounter();
+  payloadDirty = false;
+}
+
+function embedEditorHTML(){
+  const e = S.embed;
+  return (
+    '<div class="card">' +
+      '<div class="card-title">'+ICO.layers+' Embed Body</div>' +
+      '<div class="field"><div class="label">Title <span class="cnt">'+e.title.length+'/256</span></div>' +
+        '<input class="input" data-bind="embed.title" placeholder="Embed title" value="'+esc(e.title)+'"></div>' +
+      '<div class="field"><div class="label">Description <span class="cnt">'+e.description.length+'/4096</span></div>' +
+        '<textarea class="textarea" data-bind="embed.description" placeholder="Embed description" rows="4">'+esc(e.description)+'</textarea></div>' +
+      '<div class="field" style="margin-bottom:0"><div class="label">Accent colour</div>' +
+        '<div class="row" style="align-items:center">' +
+          '<input type="color" class="input" data-bind="embed.color" value="'+esc(e.color)+'" style="height:44px;padding:4px;flex:0 0 62px">' +
+          '<input class="input mono" data-bind="embed.color" value="'+esc(e.color)+'" placeholder="#22d3ee">' +
+        '</div></div>' +
+    '</div>' +
+
+    '<div class="card">' +
+      '<div class="card-title">'+ICO.sparkles+' Author & Footer</div>' +
+      '<div class="field"><div class="label">Author name</div>' +
+        '<input class="input" data-bind="embed.authorName" placeholder="Author" value="'+esc(e.authorName)+'"></div>' +
+      '<div class="field"><div class="label">Author icon URL</div>' +
+        '<input class="input" data-bind="embed.authorIcon" placeholder="https://…" value="'+esc(e.authorIcon)+'"></div>' +
+      '<div class="field"><div class="label">Footer text</div>' +
+        '<input class="input" data-bind="embed.footerText" placeholder="Footer" value="'+esc(e.footerText)+'"></div>' +
+      '<div class="field" style="margin-bottom:0"><div class="label">Footer icon URL</div>' +
+        '<input class="input" data-bind="embed.footerIcon" placeholder="https://…" value="'+esc(e.footerIcon)+'"></div>' +
+    '</div>' +
+
+    '<div class="card">' +
+      '<div class="card-title">'+ICO.image+' Media</div>' +
+      '<div class="field"><div class="label">Image URL</div>' +
+        '<input class="input" data-bind="embed.image" placeholder="https://…" value="'+esc(e.image)+'"></div>' +
+      '<div class="field" style="margin-bottom:0"><div class="label">Thumbnail URL</div>' +
+        '<input class="input" data-bind="embed.thumbnail" placeholder="https://…" value="'+esc(e.thumbnail)+'"></div>' +
+    '</div>' +
+
+    '<div class="card">' +
+      '<div class="setting-row" style="padding-top:0">' +
+        '<div class="sr-txt"><div class="sr-name">Timestamp</div>' +
+        '<div class="sr-desc">Adds the current time to the footer</div></div>' +
+        '<button class="switch '+(e.timestamp?'on':'')+'" data-act="embed-timestamp" aria-label="Toggle timestamp"></button>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="card">' +
+      '<div class="card-title">'+ICO.grid+' Fields <span style="margin-left:auto;font-size:10px;color:var(--muted)">'+(e.fields.length)+'/25</span></div>' +
+      '<div id="fieldsWrap">' + embedFieldsEditorHTML() + '</div>' +
+      '<button class="btn btn-sm btn-block" data-act="field-add" style="margin-top:9px" '+ (e.fields.length>=25?'disabled':'') +'>'+ICO.plus+' Add field</button>' +
+    '</div>'
+  );
+}
+
+function payloadSummaryHTML(){
+  const p = buildPayload();
+  const bits = [];
+  bits.push('<div>Content: <strong>'+(p.content ? p.content.length + ' chars' : 'none')+'</strong></div>');
+  bits.push('<div>Username: <strong>'+(p.username ? esc(p.username) : 'default')+'</strong></div>');
+  bits.push('<div>Embeds: <strong>'+(p.embeds ? p.embeds.length : 0)+'</strong></div>');
+  if(p.embeds && p.embeds[0] && p.embeds[0].fields){
+    bits.push('<div>Embed fields: <strong>'+p.embeds[0].fields.length+'</strong></div>');
+  }
+  const size = new Blob([JSON.stringify(p)]).size;
+  bits.push('<div>Payload size: <strong>'+size+' bytes</strong></div>');
+  return bits.join('');
+}
+
+function updateCharCounter(){
+  const el = $('#charCount');
+  if(el){
+    const n = S.content.length;
+    el.textContent = n + '/2000';
+    el.className = 'cnt' + (n > 2000 ? ' over' : n > 1800 ? ' warn' : '');
+  }
+}
+function updateHookMask(){
+  const el = $('#hookMask');
+  if(el) el.textContent = maskWebhook(S.webhookUrl);
+}
+
+function refreshDerived(){
+  updateCharCounter();
+  updateQuickCounter();
+
+  const pv = $('#previewRoot');
+  if(pv) pv.innerHTML = previewHTML();
+
+  const qp = $('#quickPreview');
+  if(qp) qp.innerHTML = previewHTML();
+
+  const ps = $('#payloadSummary');
+  if(ps) ps.innerHTML = payloadSummaryHTML();
+
+  const pb = $('#payloadBox');
+  if(pb && !payloadDirty) pb.value = JSON.stringify(buildPayload(), null, 2);
+
+  updateHookMask();
+}
+
+/* ---------- 12.3 EMBED STUDIO ---------- */
+const EMBED_PRESETS = [
+  { name:'Neon Success', icon:'✅', color:'#22c55e', title:'Deployment Successful',
+    description:'Build **#142** shipped to production in `42s`.\nAll systems nominal.', footer:'SKIBIDI PRO · CI' },
+  { name:'Critical Alert', icon:'🚨', color:'#ef4444', title:'Critical Alert',
+    description:'Service `webhook-gateway` is responding slowly.\nImmediate attention recommended.', footer:'Monitoring' },
+  { name:'Release Notes', icon:'🚀', color:'#22d3ee', title:'v2.4.0 Released',
+    description:'• Faster request pipeline\n• New payload editor\n• Rate-limit awareness', footer:'Changelog' },
+  { name:'Status Report', icon:'📊', color:'#a78bfa', title:'Daily Status',
+    description:'Uptime `99.98%` · Latency `112ms` · Errors `0`', footer:'Auto-generated' },
+  { name:'Welcome', icon:'👋', color:'#f59e0b', title:'Welcome Aboard',
+    description:'Glad to have you here. Type `!help` to get started.', footer:'Community' },
+  { name:'Minimal', icon:'▫️', color:'#64748b', title:'', description:'A clean, minimal embed with just a description.', footer:'' }
+];
+
+function renderEmbedStudio(){
+  appBody.innerHTML =
+    '<div class="card">' +
+      '<div class="card-title">'+ICO.sparkles+' Current Embed Preview</div>' +
+      '<div id="previewRoot">' + previewHTML() + '</div>' +
+      '<button class="btn btn-primary btn-block" data-act="open-studio-embed" style="margin-top:12px">'+ICO.layers+' Edit in Webhook Studio</button>' +
+    '</div>' +
+    '<div class="card">' +
+      '<div class="card-title">'+ICO.grid+' Premium Presets</div>' +
+      EMBED_PRESETS.map((p,i)=>
+        '<div class="list-item" style="align-items:center">' +
+          '<div class="li-ico" style="background:'+hexToRgba(p.color,0.18)+';color:'+p.color+';font-size:16px">'+p.icon+'</div>' +
+          '<div class="li-body">' +
+            '<div class="li-title">'+esc(p.name)+'</div>' +
+            '<div class="li-sub">'+esc(p.title || p.description).slice(0,60)+'</div>' +
+          '</div>' +
+          '<button class="btn btn-sm" data-act="apply-preset" data-idx="'+i+'">Apply</button>' +
+        '</div>'
+      ).join('') +
+    '</div>';
+  appFooter.hidden = true;
+}
+
+/* ---------- 12.4 TEMPLATES ---------- */
+function renderTemplates(){
+  let list = '';
+  if(!S.templates.length){
+    list = '<div class="empty">'+ICO.bookmark+'<p>No saved templates yet.<br>Save one from Webhook Studio.</p></div>';
+  }else{
+    list = S.templates.map(t=>
+      '<div class="list-item">' +
+        '<div class="li-ico ok">'+ICO.bookmark+'</div>' +
+        '<div class="li-body">' +
+          '<div class="li-title">'+esc(t.name)+'</div>' +
+          '<div class="li-sub">'+esc((t.content||'(embed only)').slice(0,80))+'</div>' +
+          '<div class="li-sub" style="opacity:.65;margin-top:3px">'+new Date(t.ts).toLocaleString()+'</div>' +
+        '</div>' +
+        '<div style="display:flex;flex-direction:column;gap:6px">' +
+          '<button class="btn btn-sm" data-act="load-template" data-id="'+t.id+'">Use</button>' +
+          '<button class="btn btn-sm btn-danger" data-act="del-template" data-id="'+t.id+'">'+ICO.trash+'</button>' +
+        '</div>' +
+      '</div>'
+    ).join('');
+  }
+  appBody.innerHTML =
+    '<div class="card">' +
+      '<div class="card-title">'+ICO.bookmark+' Saved Templates</div>' +
+      list +
+    '</div>' +
+    '<div class="card">' +
+      '<div class="card-title">'+ICO.plus+' Save Current Message</div>' +
+      '<div class="field"><div class="label">Template name</div>' +
+        '<input class="input" id="tplName" placeholder="e.g. Deploy notification"></div>' +
+      '<button class="btn btn-primary btn-block" data-act="save-template-inline">'+ICO.bookmark+' Save template</button>' +
+    '</div>';
+  appFooter.hidden = true;
+}
+
+/* ---------- 12.5 ACTIVITY ---------- */
+function renderActivity(){
+  const ok = S.activity.filter(a=>a.status==='success').length;
+  const fail = S.activity.filter(a=>a.status==='error').length;
+  const avg = S.activity.filter(a=>a.ms>0).length
+    ? Math.round(S.activity.filter(a=>a.ms>0).reduce((s,a)=>s+a.ms,0) / S.activity.filter(a=>a.ms>0).length)
+    : 0;
+
+  const items = S.activity.length
+    ? S.activity.map(a=>{
+        const cls = a.status==='success' ? 'ok' : a.status==='error' ? 'err' : 'info';
+        const ico = a.status==='success' ? ICO.check : a.status==='error' ? ICO.alert : ICO.x;
+        return '<div class="list-item">' +
+          '<div class="li-ico '+cls+'">'+ico+'</div>' +
+          '<div class="li-body">' +
+            '<div class="li-title">'+
+              (a.status==='success'?'Delivered':a.status==='error'?'Failed':'Cancelled')+
+              ' <span style="font-weight:600;color:var(--muted);font-size:11px">· '+a.ms+'ms</span></div>' +
+            '<div class="li-sub">'+esc(a.message)+'</div>' +
+            '<div class="li-sub" style="opacity:.6;margin-top:2px">'+esc(a.hook)+' · '+relTime(a.ts)+'</div>' +
+          '</div>' +
+        '</div>';
+      }).join('')
+    : '<div class="empty">'+ICO.activity+'<p>No requests yet.<br>Send your first webhook.</p></div>';
+
+  appBody.innerHTML =
+    '<div class="stat-grid">' +
+      '<div class="stat"><div class="stat-val" style="color:#4ade80">'+ok+'</div><div class="stat-lab">Delivered</div></div>' +
+      '<div class="stat"><div class="stat-val" style="color:#f87171">'+fail+'</div><div class="stat-lab">Failed</div></div>' +
+      '<div class="stat"><div class="stat-val">'+avg+'<span style="font-size:12px;font-weight:600">ms</span></div><div class="stat-lab">Avg latency</div></div>' +
+      '<div class="stat"><div class="stat-val">'+S.activity.length+'</div><div class="stat-lab">Total requests</div></div>' +
+    '</div>' +
+    '<div class="card">' +
+      '<div class="card-title" style="justify-content:space-between">' +
+        '<span style="display:flex;align-items:center;gap:7px">'+ICO.clock+' Recent Activity</span>' +
+        (S.activity.length ? '<button class="chip" data-act="clear-activity" style="padding:3px 9px;font-size:10px">Clear</button>' : '') +
+      '</div>' +
+      items +
+    '</div>';
+  appFooter.hidden = true;
+}
+
+/* ---------- 12.6 TOOLS ---------- */
+function renderTools(){
+  const v = validateWebhook(S.webhookUrl);
+  appBody.innerHTML =
+    '<div class="card">' +
+      '<div class="card-title">'+ICO.shield+' Webhook Validator</div>' +
+      '<div class="field"><div class="label">URL to validate</div>' +
+        '<input class="input mono" id="validateInput" placeholder="https://discord.com/api/webhooks/…" value="'+esc(S.webhookUrl)+'"></div>' +
+      '<div id="validateResult" style="font-size:12px;line-height:1.6">'+
+        '<span class="pill '+(v.ok?'ok':'err')+'">'+(v.ok?'Valid':'Invalid')+'</span> '+
+        '<span style="color:var(--muted)">'+esc(v.reason)+'</span>'+
+      '</div>' +
+      '<button class="btn btn-sm btn-block" data-act="validate-hook" style="margin-top:9px">'+ICO.check+' Validate</button>' +
+    '</div>' +
+
+    '<div class="card">' +
+      '<div class="card-title">'+ICO.code+' JSON Formatter</div>' +
+      '<textarea class="textarea mono" id="jsonBox" rows="7" spellcheck="false" placeholder=\'{"content":"hello"}\'></textarea>' +
+      '<div style="display:flex;gap:7px;margin-top:9px;flex-wrap:wrap">' +
+        '<button class="btn btn-sm" data-act="json-format">Format</button>' +
+        '<button class="btn btn-sm" data-act="json-minify">Minify</button>' +
+        '<button class="btn btn-sm" data-act="json-copy">'+ICO.copy+' Copy</button>' +
+      '</div>' +
+      '<div id="jsonResult" style="font-size:11.5px;margin-top:8px;color:var(--muted)">Paste JSON to validate & format.</div>' +
+    '</div>' +
+
+    '<div class="card">' +
+      '<div class="card-title">'+ICO.wave+' Request Status Monitor</div>' +
+      '<div id="monitorBody" style="font-size:12px;line-height:1.75;color:var(--muted)">'+monitorHTML()+'</div>' +
+    '</div>' +
+
+    '<div class="card">' +
+      '<div class="card-title">'+ICO.alert+' Error Diagnostics</div>' +
+      '<div id="diagBody" style="font-size:12px;line-height:1.6;color:var(--muted)">'+diagnosticsHTML()+'</div>' +
+    '</div>' +
+
+    '<div class="card">' +
+      '<div class="card-title">'+ICO.copy+' Payload Actions</div>' +
+      '<div style="display:flex;gap:7px;flex-wrap:wrap">' +
+        '<button class="btn btn-sm" data-act="copy-payload">'+ICO.copy+' Copy payload</button>' +
+        '<button class="btn btn-sm" data-act="copy-masked">'+ICO.shield+' Copy masked URL</button>' +
+      '</div>' +
+    '</div>';
+  appFooter.hidden = true;
+}
+function monitorHTML(){
+  if(!lastResult) return 'No request made yet in this session.';
+  const cls = lastResult.status==='success'?'ok':lastResult.status==='error'?'err':'warn';
+  return '<div style="margin-bottom:6px"><span class="pill '+cls+'">'+lastResult.status+'</span> ' +
+    (lastResult.code ? '<span style="font-size:11px">HTTP '+lastResult.code+'</span>' : '') + '</div>' +
+    '<div>Latency: <strong>'+lastResult.ms+'ms</strong></div>' +
+    '<div>Time: <strong>'+new Date(lastResult.at).toLocaleTimeString()+'</strong></div>' +
+    '<div>Rate limit: <strong>'+(rateUntil>nowMs()? Math.ceil((rateUntil-nowMs())/1000)+'s remaining' : 'clear')+'</strong></div>';
+}
+function diagnosticsHTML(){
+  if(!lastResult || lastResult.status==='success'){
+    return '<span class="pill ok">Healthy</span> No outstanding errors.';
+  }
+  const m = lastResult.message||'';
+  let tip = 'Check the webhook URL and try again.';
+  if(/429|rate limit/i.test(m)) tip = 'Discord rate limit reached — wait for the timer before retrying. The app will not bypass it.';
+  else if(/401|403|404/i.test(m)) tip = 'The webhook may have been deleted or the token is wrong. Re-copy it from Discord.';
+  else if(/fetch|network|cors/i.test(m)) tip = 'If you opened this file directly, serve it over http:// (e.g. a local server) to avoid CORS restrictions.';
+  else if(/json/i.test(m)) tip = 'Your payload JSON is malformed — use the Formatter above.';
+  return '<span class="pill err">Error</span><div style="margin-top:6px">'+esc(m)+'</div>' +
+         '<div style="margin-top:6px;color:var(--text)">'+ICO.info+' '+esc(tip)+'</div>';
+}
+function updateToolStatus(){
+  const m = $('#monitorBody'); if(m) m.innerHTML = monitorHTML();
+  const d = $('#diagBody'); if(d) d.innerHTML = diagnosticsHTML();
+}
+
+/* ---------- 12.7 THEMES ---------- */
+function renderThemes(){
+  appBody.innerHTML =
+    '<div class="card">' +
+      '<div class="card-title">'+ICO.image+' Wallpapers</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">' +
+        Object.keys(WALLPAPERS).map(k=>{
+          const w = WALLPAPERS[k];
+          const p = S.dark ? w.dark : w.light;
+          const active = S.wallpaper === k;
+          return '<button data-act="set-wallpaper" data-key="'+k+'" style="' +
+            'border:'+(active?'2px solid var(--accent)':'1px solid var(--stroke)')+';' +
+            'border-radius:15px;padding:0;overflow:hidden;cursor:pointer;background:none;position:relative;aspect-ratio:9/13">' +
+            '<span style="position:absolute;inset:0;background:'+
+              'radial-gradient(60% 45% at 30% 25%, '+p[1] +', transparent 70%),'+
+              'radial-gradient(60% 45% at 75% 40%, '+p[2] +', transparent 70%),'+
+              'radial-gradient(70% 50% at 50% 88%, '+p[3] +', transparent 72%),'+
+              p[0]+';display:block"></span>' +
+            '<span style="position:absolute;left:8px;bottom:7px;font-size:10.5px;font-weight:800;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.8)">'+esc(w.name)+'</span>' +
+            (active?'<span style="position:absolute;right:7px;top:7px;width:18px;height:18px;border-radius:50%;background:var(--accent);display:grid;place-items:center">'+ICO.check+'</span>':'') +
+          '</button>';
+        }).join('') +
+      '</div>' +
+    '</div>' +
+
+    '<div class="card">' +
+      '<div class="card-title">'+ICO.palette+' Accent Colour</div>' +
+      '<div style="display:flex;gap:10px;flex-wrap:wrap">' +
+        ACCENTS.map(a=>
+          '<button data-act="set-accent" data-a="'+a.a+'" data-b="'+a.b+'" style="' +
+          'width:44px;height:44px;border-radius:14px;border:'+(S.accent===a.a?'2px solid var(--text)':'1px solid var(--stroke)')+';' +
+          'background:linear-gradient(140deg,'+a.a+','+a.b+');cursor:pointer;position:relative">' +
+          (S.accent===a.a?'<span style="position:absolute;inset:0;display:grid;place-items:center;color:#04121a">'+ICO.check+'</span>':'') +
+          '</button>').join('') +
+      '</div>' +
+    '</div>' +
+
+    '<div class="card">' +
+      '<div class="card-title">'+ICO.sliders+' Glass Intensity</div>' +
+      '<input type="range" min="0" max="1" step="0.05" value="'+S.glass+'" data-act="glass-slider">' +
+      '<div style="font-size:11px;color:var(--muted);text-align:right">'+Math.round(S.glass*100)+'%</div>' +
+    '</div>';
+  appFooter.hidden = true;
+}
+
+/* ---------- 12.8 SETTINGS ---------- */
+function renderSettings(){
+  appBody.innerHTML =
+    '<div class="card">' +
+      '<div class="card-title">'+ICO.volume+' Sound</div>' +
+      '<div class="setting-row" style="padding-top:0">' +
+        '<div class="sr-txt"><div class="sr-name">UI sounds</div>' +
+        '<div class="sr-desc">Minecraft-style procedural clicks</div></div>' +
+        '<button class="switch '+(S.sound?'on':'')+'" data-act="toggle-sound"></button>' +
+      '</div>' +
+      '<div class="slider-row">'+ICO.volume+'<input type="range" min="0" max="1" step="0.05" value="'+S.volume+'" data-act="volume-slider"></div>' +
+    '</div>' +
+
+    '<div class="card">' +
+      '<div class="card-title">'+ICO.sparkles+' Appearance</div>' +
+      '<div class="setting-row" style="padding-top:0">' +
+        '<div class="sr-txt"><div class="sr-name">Dark mode</div>' +
+        '<div class="sr-desc">Switch between midnight and light glass</div></div>' +
+        '<button class="switch '+(S.dark?'on':'')+'" data-act="toggle-dark"></button>' +
+      '</div>' +
+      '<div class="setting-row">' +
+        '<div class="sr-txt"><div class="sr-name">Animations</div>' +
+        '<div class="sr-desc">Disable for maximum performance</div></div>' +
+        '<button class="switch '+(S.animations?'on':'')+'" data-act="toggle-anim"></button>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="card">' +
+      '<div class="card-title">'+ICO.shield+' Privacy & Security</div>' +
+      '<div class="setting-row" style="padding-top:0">' +
+        '<div class="sr-txt"><div class="sr-name">Remember webhook URL</div>' +
+        '<div class="sr-desc">Webhook URLs are credentials. Only stored locally if you enable this.</div></div>' +
+        '<button class="switch '+(S.rememberHook?'on':'')+'" data-act="toggle-remember"></button>' +
+      '</div>' +
+      '<div class="setting-row">' +
+        '<div class="sr-txt"><div class="sr-name">Export settings</div>' +
+        '<div class="sr-desc">Downloads a JSON file (without the webhook URL)</div></div>' +
+        '<button class="btn btn-sm" data-act="export-settings">'+ICO.download+'</button>' +
+      '</div>' +
+      '<div class="setting-row">' +
+        '<div class="sr-txt"><div class="sr-name">Import settings</div>' +
+        '<div class="sr-desc">Restore a previously exported file</div></div>' +
+        '<button class="btn btn-sm" data-act="import-settings">'+ICO.upload+'</button>' +
+      '</div>' +
+      '<div class="setting-row">' +
+        '<div class="sr-txt"><div class="sr-name" style="color:#f87171">Erase all local data</div>' +
+        '<div class="sr-desc">Templates, activity, preferences and the stored webhook URL</div></div>' +
+        '<button class="btn btn-sm btn-danger" data-act="clear-data">'+ICO.trash+'</button>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="card">' +
+      '<div class="card-title">'+ICO.info+' About</div>' +
+      '<div style="font-size:12px;line-height:1.7;color:var(--muted)">' +
+        '<div><strong style="color:var(--text)">ULTRA MAX SPEED — SKIBIDI PRO</strong></div>' +
+        '<div>Single-file premium webhook OS · v1.0</div>' +
+        '<div style="margin-top:6px">Wi-Fi, Bluetooth and other system toggles in Control Center are <strong>simulated</strong> and never touch your real device hardware.</div>' +
+        '<div style="margin-top:6px">Requests are only sent when you press Send. Discord rate limits are always respected.</div>' +
+      '</div>' +
+    '</div>';
+  appFooter.hidden = true;
+}
+
+/* ---------- router ---------- */
+function renderApp(id){
+  switch(id){
+    case 'quick':     renderQuick(); break;
+    case 'studio':    renderStudio(); break;
+    case 'embed':     renderEmbedStudio(); break;
+    case 'templates': renderTemplates(); break;
+    case 'activity':  renderActivity(); break;
+    case 'tools':     renderTools(); break;
+    case 'themes':    renderThemes(); break;
+    case 'settings':  renderSettings(); break;
+  }
+  appBody.scrollTop = 0;
+}
+
+/* ==========================================================================
+   13 · APP EVENT DELEGATION
+   ========================================================================== */
+function handleInput(e){
+  const el = e.target.closest('[data-bind]');
+  if(!el) return;
+  const path = el.getAttribute('data-bind');
+  let val = el.type === 'checkbox' ? el.checked : el.value;
+
+  /* keep both colour inputs in sync */
+  if(path === 'embed.color'){
+    $$('[data-bind="embed.color"]').forEach(o=>{ if(o!==el) o.value = val; });
+  }
+  /* keep duplicated webhook url inputs in sync */
+  if(path === 'webhookUrl'){
+    $$('[data-bind="webhookUrl"]').forEach(o=>{ if(o!==el) o.value = val; });
+  }
+  setByPath(S, path, val);
+  if(path.indexOf('embed') === 0 && !S.embed.on){ /* no auto-enable */ }
+  refreshDerived();
+  if(path === 'webhookUrl' || path === 'username' || path === 'avatarUrl') persist();
+}
+
+function handleClick(e){
+  const btn = e.target.closest('[data-act]');
+  if(!btn) return;
+  const act = btn.getAttribute('data-act');
+
+  switch(act){
+
+    /* --- sending --- */
+    case 'send':
+      Sound.click();
+      sendWebhook({ useEditor: true });
+      break;
+    case 'cancel':
+      Sound.click();
+      cancelSend();
+      break;
+
+    /* --- studio tabs --- */
+    case 'studio-tab': {
+      Sound.click();
+      studioTab = btn.getAttribute('data-tab');
+      $$('#studioTabs button').forEach(b=>b.classList.toggle('active', b === btn));
+      $$('.tabpane').forEach(p=>{ p.hidden = p.getAttribute('data-pane') !== studioTab; });
+      break;
+    }
+    case 'toggle-reveal': {
+      Sound.click();
+      const input = $('#hookInput');
+      if(input){
+        const show = input.type === 'password';
+        input.type = show ? 'text' : 'password';
+        btn.innerHTML = (show ? ICO.eyeoff : ICO.eye);
+      }
+      break;
+    }
+
+    /* --- embed --- */
+    case 'embed-toggle':
+      Sound.click();
+      S.embed.on = !S.embed.on;
+      btn.classList.toggle('on', S.embed.on);
+      refreshDerived();
+      persist();
+      break;
+    case 'embed-timestamp':
+      Sound.click();
+      S.embed.timestamp = !S.embed.timestamp;
+      btn.classList.toggle('on', S.embed.timestamp);
+      refreshDerived();
+      persist();
+      break;
+    case 'field-add':
+      Sound.click();
+      if(S.embed.fields.length >= 25) break;
+      S.embed.fields.push({ name:'', value:'', inline:false });
+      $('#fieldsWrap').innerHTML = embedFieldsEditorHTML();
+      refreshDerived();
+      persist();
+      break;
+    case 'field-del':
+      Sound.click();
+      S.embed.fields.splice(parseInt(btn.getAttribute('data-idx'),10), 1);
+      $('#fieldsWrap').innerHTML = embedFieldsEditorHTML();
+      refreshDerived();
+      persist();
+      break;
+    case 'field-toggle': {
+      Sound.click();
+      const i = parseInt(btn.getAttribute('data-idx'),10);
+      S.embed.fields[i].inline = !S.embed.fields[i].inline;
+      $('#fieldsWrap').innerHTML = embedFieldsEditorHTML();
+      refreshDerived();
+      persist();
+      break;
+    }
+
+    /* --- payload --- */
+    case 'payload-format': {
+      Sound.click();
+      const box = $('#payloadBox');
+      if(!box) break;
+      try{
+        box.value = JSON.stringify(JSON.parse(box.value), null, 2);
+        payloadDirty = true;
+        toast('Payload formatted','ok');
+      }catch(err){ toast('Invalid JSON','err'); Sound.error(); }
+      break;
+    }
+    case 'payload-sync':
+      Sound.click();
+      payloadDirty = false;
+      refreshDerived();
+      toast('Payload rebuilt from form','ok');
+      break;
+    case 'payload-copy':
+      Sound.click();
+      copyText($('#payloadBox') ? $('#payloadBox').value : JSON.stringify(buildPayload(),null,2));
+      break;
+    case 'copy-payload':
+      Sound.click();
+      copyText(JSON.stringify(buildPayload(), null, 2));
+      break;
+    case 'copy-masked':
+      Sound.click();
+      copyText(maskWebhook(S.webhookUrl));
+      break;
+
+    /* --- quick send --- */
+    case 'quick-preset':
+      Sound.click();
+      S.content = QUICK_PRESETS[parseInt(btn.getAttribute('data-idx'),10)].text;
+      const qc = $('#quickContent');
+      if(qc) qc.value = S.content;
+      refreshDerived();
+      break;
+    case 'quick-clear':
+      Sound.click();
+      S.content = '';
+      const qc2 = $('#quickContent');
+      if(qc2) qc2.value = '';
+      refreshDerived();
+      break;
+
+    /* --- templates --- */
+    case 'save-template':
+      Sound.click();
+      openDialog('Save template','Give this message a name.', 'Template name', function(name){
+        if(!name) return;
+        saveTemplate(name);
+      });
+      break;
+    case 'save-template-inline': {
+      Sound.click();
+      const inp = $('#tplName');
+      const name = inp ? inp.value.trim() : '';
+      if(!name){ toast('Enter a template name','err'); break; }
+      saveTemplate(name);
+      renderApp('templates');
+      break;
+    }
+    case 'load-template': {
+      Sound.click();
+      const t = S.templates.find(x=>x.id === btn.getAttribute('data-id'));
+      if(!t) break;
+      S.content = t.content || '';
+      S.username = t.username || '';
+      S.avatarUrl = t.avatarUrl || '';
+      if(t.embed){
+        S.embed = JSON.parse(JSON.stringify(t.embed));
+        if(!Array.isArray(S.embed.fields)) S.embed.fields = [];
+      }
+      persist();
+      toast('Template loaded','ok');
+      openApp('studio', btn);
+      break;
+    }
+    case 'del-template': {
+      Sound.click();
+      S.templates = S.templates.filter(x=>x.id !== btn.getAttribute('data-id'));
+      persist();
+      renderApp('templates');
+      toast('Template deleted','info');
+      break;
+    }
+
+    /* --- activity --- */
+    case 'clear-activity':
+      Sound.click();
+      S.activity = [];
+      persist();
+      renderApp('activity');
+      renderHomeBadges();
+      toast('Activity cleared','info');
+      break;
+
+    /* --- embed studio --- */
+    case 'apply-preset': {
+      Sound.click();
+      const p = EMBED_PRESETS[parseInt(btn.getAttribute('data-idx'),10)];
+      S.embed.on = true;
+      S.embed.title = p.title;
+      S.embed.description = p.description;
+      S.embed.color = p.color;
+      S.embed.footerText = p.footer || '';
+      persist();
+      toast('Preset applied','ok');
+      renderApp('embed');
+      break;
+    }
+    case 'open-studio-embed':
+      Sound.click();
+      studioTab = 'embed';
+      openApp('studio', btn);
+      break;
+
+    /* --- tools --- */
+    case 'validate-hook': {
+      Sound.click();
+      const inp = $('#validateInput');
+      const res = validateWebhook(inp ? inp.value : '');
+      const out = $('#validateResult');
+      if(out){
+        out.innerHTML = '<span class="pill '+(res.ok?'ok':'err')+'">'+(res.ok?'Valid':'Invalid')+'</span> '+
+          '<span style="color:var(--muted)">'+esc(res.reason)+'</span>';
+      }
+      if(res.ok) Sound.toggleOn(); else Sound.error();
+      break;
+    }
+    case 'json-format':
+    case 'json-minify': {
+      Sound.click();
+      const box = $('#jsonBox');
+      const out = $('#jsonResult');
+      if(!box) break;
+      try{
+        const parsed = JSON.parse(box.value);
+        box.value = JSON.stringify(parsed, null, act === 'json-format' ? 2 : 0);
+        if(out) out.innerHTML = '<span class="pill ok">Valid</span> JSON parsed successfully.';
+        Sound.toggleOn();
+      }catch(err){
+        if(out) out.innerHTML = '<span class="pill err">Invalid</span> ' + esc(err.message);
+        Sound.error();
+      }
+      break;
+    }
+    case 'json-copy': {
+      Sound.click();
+      const box = $('#jsonBox');
+      copyText(box ? box.value : '');
+      break;
+    }
+
+    /* --- themes --- */
+    case 'set-wallpaper':
+      Sound.click();
+      S.wallpaper = btn.getAttribute('data-key');
+      applyWallpaper();
+      persist();
+      renderApp('themes');
+      break;
+    case 'set-accent':
+      Sound.click();
+      S.accent = btn.getAttribute('data-a');
+      S.accent2 = btn.getAttribute('data-b');
+      applyTheme();
+      persist();
+      renderApp('themes');
+      break;
+
+    /* --- settings --- */
+    case 'toggle-sound':
+      Sound.click();
+      S.sound = !S.sound;
+      btn.classList.toggle('on', S.sound);
+      if(S.sound) Sound.toggleOn();
+      persist();
+      break;
+    case 'toggle-dark':
+      Sound.click();
+      S.dark = !S.dark;
+      btn.classList.toggle('on', S.dark);
+      applyTheme();
+      persist();
+      break;
+    case 'toggle-anim':
+      Sound.click();
+      S.animations = !S.animations;
+      btn.classList.toggle('on', S.animations);
+      osEl.classList.toggle('noanim', !S.animations);
+      persist();
+      break;
+    case 'toggle-remember':
+      Sound.click();
+      S.rememberHook = !S.rememberHook;
+      btn.classList.toggle('on', S.rememberHook);
+      persist();
+      toast(S.rememberHook ? 'Webhook URL will be stored locally' : 'Webhook URL will not be stored', 'info');
+      break;
+    case 'export-settings':
+      Sound.click();
+      exportSettings();
+      break;
+    case 'import-settings':
+      Sound.click();
+      importSettings();
+      break;
+    case 'clear-data':
+      Sound.click();
+      openDialog('Erase local data?','Templates, activity, preferences and any saved webhook URL will be permanently removed.','Type ERASE to confirm', function(v){
+        if(v.trim().toUpperCase() !== 'ERASE'){ toast('Cancelled — type ERASE exactly','err'); return; }
+        try{ localStorage.removeItem(LS_KEY); }catch(e){}
+        S.webhookUrl = '';
+        S.rememberHook = false;
+        S.templates = [];
+        S.activity = [];
+        S.notifList = [];
+        S.embed = { on:false,title:'',description:'',color:'#22d3ee',authorName:'',authorIcon:'',footerText:'',footerIcon:'',image:'',thumbnail:'',timestamp:false,fields:[] };
+        S.content = ''; S.username = ''; S.avatarUrl = '';
+        persist();
+        renderHomeBadges();
+        renderApp('settings');
+        toast('All local data erased','ok');
+      });
+      break;
+  }
+}
+
+function handleRange(e){
+  const el = e.target.closest('[data-act]');
+  if(!el) return;
+  const act = el.getAttribute('data-act');
+  if(act === 'volume-slider'){
+    S.volume = parseFloat(el.value);
+    Sound.setVolume(S.volume);
+    if(!el._throttle){ el._throttle = 0; }
+    if(performance.now() - el._throttle > 180){
+      el._throttle = performance.now();
+      Sound.tone(800, 800, 0.04, 'sine', 0.12);
+    }
+    persist();
+  }
+  if(act === 'glass-slider'){
+    S.glass = parseFloat(el.value);
+    osEl.style.setProperty('--blur', (10 + S.glass*26).toFixed(0)+'px');
+    persist();
+  }
+}
+
+function handleChange(e){
+  const el = e.target.closest('[data-act]');
+  if(!el) return;
+  if(el.getAttribute('data-act') === 'glass-slider'){
+    renderApp('themes');
+  }
+}
+
+appBody.addEventListener('input', function(e){
+  if(e.target.tagName === 'TEXTAREA' && e.target.id === 'payloadBox'){
+    payloadDirty = true;
+    return;
+  }
+  if(e.target.tagName === 'TEXTAREA' && e.target.id === 'jsonBox') return;
+  if(e.target.type === 'range'){ handleRange(e); return; }
+  handleInput(e);
+});
+appBody.addEventListener('change', function(e){
+  if(e.target.type === 'range'){ handleChange(e); return; }
+});
+appBody.addEventListener('click', handleClick);
+appFooter.addEventListener('click', handleClick);
+
+function saveTemplate(name){
+  const tpl = {
+    id: uid(),
+    name: name.slice(0,60),
+    content: S.content,
+    username: S.username,
+    avatarUrl: S.avatarUrl,
+    embed: JSON.parse(JSON.stringify(S.embed)),
+    ts: nowMs()
+  };
+  S.templates.unshift(tpl);
+  if(S.templates.length > 40) S.templates.length = 40;
+  persist();
+  toast('Template saved','ok');
+  pushNotification('success','Template saved', tpl.name);
+}
+
+function copyText(text){
+  if(!text){ toast('Nothing to copy','info'); return; }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>toast('Copied to clipboard','ok'))
+      .catch(()=>fallbackCopy(text));
+  }else{
+    fallbackCopy(text);
+  }
+}
+function fallbackCopy(text){
+  try{
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    toast('Copied to clipboard','ok');
+  }catch(e){ toast('Copy failed','err'); }
+}
+
+/* ==========================================================================
+   14 · DIALOG
+   ========================================================================== */
+let dialogCb = null;
+function openDialog(title, text, placeholder, cb){
+  dialogCb = cb;
+  const box = $('#dialogBox');
+  box.innerHTML =
+    '<h4>'+esc(title)+'</h4>' +
+    '<p>'+esc(text)+'</p>' +
+    '<input class="input" id="dialogInput" placeholder="'+esc(placeholder||'')+'">' +
+    '<div class="dialog-actions">' +
+      '<button class="btn" data-dlg="cancel">Cancel</button>' +
+      '<button class="btn btn-primary" data-dlg="ok">Confirm</button>' +
+    '</div>';
+  $('#dialogLayer').classList.add('open');
+  setTimeout(()=>{ const i = $('#dialogInput'); if(i) i.focus(); }, 80);
+}
+function closeDialog(){
+  $('#dialogLayer').classList.remove('open');
+  dialogCb = null;
+}
+$('#dialogBack').addEventListener('click', ()=>{ Sound.click(); closeDialog(); });
+$('#dialogBox').addEventListener('click', function(e){
+  const b = e.target.closest('[data-dlg]');
+  if(!b) return;
+  Sound.click();
+  const act = b.getAttribute('data-dlg');
+  if(act === 'ok'){
+    const inp = $('#dialogInput');
+    const val = inp ? inp.value : '';
+    const cb = dialogCb;
+    closeDialog();
+    if(cb) cb(val);
+  }else{
+    closeDialog();
+  }
+});
+
+/* ==========================================================================
+   15 · SETTINGS EXPORT / IMPORT
+   ========================================================================== */
+function exportSettings(){
+  const data = {
+    _app:'skibidi-pro-settings',
+    _v:1,
+    dark:S.dark, sound:S.sound, volume:S.volume, animations:S.animations,
+    glass:S.glass, accent:S.accent, accent2:S.accent2, wallpaper:S.wallpaper,
+    username:S.username, avatarUrl:S.avatarUrl, embed:S.embed,
+    templates:S.templates
+  };
+  try{
+    const blob = new Blob([JSON.stringify(data,null,2)], { type:'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'skibidi-pro-settings.json';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 400);
+    toast('Settings exported','ok');
+  }catch(e){ toast('Export failed','err'); }
+}
+function importSettings(){
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = 'application/json,.json';
+  inp.onchange = function(){
+    const f = inp.files && inp.files[0];
+    if(!f) return;
+    const reader = new FileReader();
+    reader.onload = function(){
+      try{
+        const d = JSON.parse(reader.result);
+        if(d._app !== 'skibidi-pro-settings'){ toast('Not a valid settings file','err'); return; }
+        ['dark','sound','animations'].forEach(k=>{ if(typeof d[k]==='boolean') S[k]=d[k]; });
+        ['volume','glass'].forEach(k=>{ if(typeof d[k]==='number') S[k]=d[k]; });
+        ['accent','accent2','wallpaper','username','avatarUrl'].forEach(k=>{ if(typeof d[k]==='string') S[k]=d[k]; });
+        if(d.embed && typeof d.embed==='object'){
+          Object.keys(S.embed).forEach(k=>{ if(d.embed[k]!==undefined) S.embed[k]=d.embed[k]; });
+        }
+        if(Array.isArray(d.templates)) S.templates = d.templates;
+        applyTheme();
+        persist();
+        renderApp('settings');
+        toast('Settings imported','ok');
+      }catch(e){ toast('Invalid JSON file','err'); }
+    };
+    reader.readAsText(f);
+  };
+  inp.click();
+}
+
+/* ==========================================================================
+   16 · SHADE (Notifications + Control Center)
+   ========================================================================== */
+let currentShade = null;
+const shadeLayer = $('#shadeLayer');
+
+function openShade(kind){
+  currentShade = kind;
+  renderShade();
+  shadeLayer.classList.add('open');
+  Sound.open();
+}
+function closeShade(){
+  shadeLayer.classList.remove('open');
+  currentShade = null;
+  Sound.close();
+}
+$('#shadeBackdrop').addEventListener('click', closeShade);
+
+function renderShade(){
+  const card = $('#shadeCard');
+  if(!card) return;
+
+  if(currentShade === 'cc'){
+    card.innerHTML =
+      '<div class="shade-head">' +
+        '<h3>Control Center</h3>' +
+        '<button class="chip" data-shade="notif">'+ICO.info+' Notifications</button>' +
+      '</div>' +
+      '<div class="cc-grid">' +
+        '<button class="cc-tile '+(simWifi?'on':'')+'" data-cc="wifi">'+ICO.wifi+'<span>Wi-Fi</span></button>' +
+        '<button class="cc-tile '+(simBt?'on':'')+'" data-cc="bt">'+ICO.bluetooth+'<span>Bluetooth</span></button>' +
+        '<button class="cc-tile '+(S.dark?'on':'')+'" data-cc="dark">'+ICO.moon+'<span>Dark</span></button>' +
+        '<button class="cc-tile '+(S.sound?'on':'')+'" data-cc="sound">'+ICO.volume+'<span>Sound</span></button>' +
+        '<button class="cc-tile '+(S.animations?'on':'')+'" data-cc="anim">'+ICO.sparkles+'<span>Motion</span></button>' +
+        '<button class="cc-tile" data-cc="studio">'+ICO.send+'<span>Studio</span></button>' +
+        '<button class="cc-tile" data-cc="quick">'+ICO.bolt+'<span>Quick</span></button>' +
+        '<button class="cc-tile" data-cc="settings">'+ICO.settings+'<span>Settings</span></button>' +
+      '</div>' +
+      '<div style="border-top:1px solid var(--stroke-2);padding-top:6px">' +
+        '<div class="slider-row">'+ICO.sun+'<input type="range" min="20" max="100" value="'+(simBright)+'" data-cc-range="bright"></div>' +
+        '<div class="slider-row">'+ICO.volume+'<input type="range" min="0" max="1" step="0.05" value="'+S.volume+'" data-cc-range="vol"></div>' +
+      '</div>' +
+      '<div class="sim-note">Wi-Fi &amp; Bluetooth are simulated toggles — they never affect real device hardware.</div>';
+  }else{
+    const list = S.notifList.length
+      ? S.notifList.map(n=>{
+          const cls = n.kind === 'success' ? 'ok' : n.kind === 'error' ? 'err' : 'info';
+          const ico = n.kind === 'success' ? ICO.check : n.kind === 'error' ? ICO.alert : ICO.info;
+          return '<div class="notif" data-nid="'+n.id+'">' +
+            '<div class="n-ico" style="background:'+(n.kind==='success'?'rgba(34,197,94,.16)':n.kind==='error'?'rgba(239,68,68,.16)':'var(--accent-soft)')+';color:'+
+              (n.kind==='success'?'#4ade80':n.kind==='error'?'#f87171':'var(--accent)')+'">'+ico+'</div>' +
+            '<div class="n-body">' +
+              '<div class="n-title"><span>'+esc(n.title)+'</span><span class="n-time">'+relTime(n.ts)+'</span></div>' +
+              '<div class="n-text">'+esc(n.text)+'</div>' +
+            '</div>' +
+          '</div>';
+        }).join('')
+      : '<div class="empty" style="padding:22px 10px">'+ICO.info+'<p>No notifications yet.</p></div>';
+
+    card.innerHTML =
+      '<div class="shade-head">' +
+        '<h3>Notifications</h3>' +
+        (S.notifList.length ? '<button class="chip" data-shade="clear">'+ICO.trash+' Clear</button>' : '') +
+        '<button class="chip" data-shade="cc">'+ICO.sliders+' Controls</button>' +
+      '</div>' +
+      '<div id="notifList">'+list+'</div>';
+  }
+}
+
+let simWifi = true, simBt = false, simBright = 85;
+
+$('#shadeCard').addEventListener('click', function(e){
+  const sh = e.target.closest('[data-shade]');
+  if(sh){
+    Sound.click();
+    const v = sh.getAttribute('data-shade');
+    if(v === 'clear'){ S.notifList = []; renderShade(); renderHomeBadges(); return; }
+    currentShade = v; renderShade(); return;
+  }
+  const cc = e.target.closest('[data-cc]');
+  if(cc){
+    Sound.click();
+    const k = cc.getAttribute('data-cc');
+    if(k === 'wifi'){ simWifi = !simWifi; cc.classList.toggle('on', simWifi); Sound.toggleOn(); return; }
+    if(k === 'bt'){ simBt = !simBt; cc.classList.toggle('on', simBt); Sound.toggleOn(); return; }
+    if(k === 'dark'){ S.dark = !S.dark; applyTheme(); persist(); cc.classList.toggle('on', S.dark); return; }
+    if(k === 'sound'){ S.sound = !S.sound; persist(); cc.classList.toggle('on', S.sound); if(S.sound) Sound.toggleOn(); return; }
+    if(k === 'anim'){ S.animations = !S.animations; osEl.classList.toggle('noanim', !S.animations); persist(); cc.classList.toggle('on', S.animations); return; }
+    if(k === 'studio'){ closeShade(); setTimeout(()=>openApp('studio'), 180); return; }
+    if(k === 'quick'){ closeShade(); setTimeout(()=>openApp('quick'), 180); return; }
+    if(k === 'settings'){ closeShade(); setTimeout(()=>openApp('settings'), 180); return; }
+    return;
+  }
+  const n = e.target.closest('.notif');
+  if(n){
+    Sound.click();
+    n.classList.add('dismiss');
+    setTimeout(()=>{
+      S.notifList = S.notifList.filter(x=>x.id !== n.getAttribute('data-nid'));
+      renderShade(); renderHomeBadges();
+    }, 240);
+  }
+});
+$('#shadeCard').addEventListener('input', function(e){
+  const r = e.target.closest('[data-cc-range]');
+  if(!r) return;
+  if(r.getAttribute('data-cc-range') === 'vol'){
+    S.volume = parseFloat(r.value);
+    Sound.setVolume(S.volume);
+    persist();
+  }else{
+    simBright = parseFloat(r.value);
+    $('#wallDim').style.opacity = (0.15 + (1 - simBright/100) * 0.85).toFixed(2);
+  }
+});
+
+/* ==========================================================================
+   17 · GESTURES
+   ========================================================================== */
+let touchStart = null;
+
+osEl.addEventListener('touchstart', function(e){
+  const t = e.touches[0];
+  touchStart = { x:t.clientX, y:t.clientY, time:nowMs() };
+}, { passive:true });
+
+osEl.addEventListener('touchend', function(e){
+  if(!touchStart) return;
+  const t = e.changedTouches[0];
+  const dx = t.clientX - touchStart.x;
+  const dy = t.clientY - touchStart.y;
+  const dt = nowMs() - touchStart.time;
+  const sx = touchStart.x;
+  const sy = touchStart.y;
+  touchStart = null;
+
+  if(dt > 900) return;
+  const rect = osEl.getBoundingClientRect();
+  const localX = sx - rect.left;
+  const relY = sy - rect.top;
+
+  /* pull down from top */
+  if(relY < 74 && dy > 55 && Math.abs(dx) < 130){
+    if(currentShade){ closeShade(); return; }
+    if(localX > rect.width * 0.55) openShade('cc');
+    else openShade('notif');
+    return;
+  }
+  /* swipe up from bottom */
+  if(relY > rect.height - 80 && dy < -55 && Math.abs(dx) < 130){
+    if(currentShade){ closeShade(); return; }
+    if(appLayer.classList.contains('open')){ closeApp(); return; }
+    return;
+  }
+  /* swipe up inside shade closes it */
+  if(currentShade && dy < -90 && Math.abs(dx) < 140){
+    closeShade(); return;
+  }
+}, { passive:true });
+
+/* lock screen unlock */
+const lockEl = $('#lockScreen');
+let lockStart = null;
+lockEl.addEventListener('touchstart', function(e){
+  const t = e.touches[0];
+  lockStart = { x:t.clientX, y:t.clientY };
+}, { passive:true });
+lockEl.addEventListener('touchend', function(e){
+  if(!lockStart) return;
+  const t = e.changedTouches[0];
+  const dy = t.clientY - lockStart.y;
+  const dx = Math.abs(t.clientX - lockStart.x);
+  lockStart = null;
+  if(dy < -50 || (Math.abs(dy) < 12 && dx < 12)) unlock();
+}, { passive:true });
+lockEl.addEventListener('click', function(e){
+  if(e.target.closest('[data-lockapp]')) return;
+  unlock();
+});
+lockEl.addEventListener('click', function(e){
+  const b = e.target.closest('[data-lockapp]');
+  if(!b) return;
+  e.stopPropagation();
+  const id = b.getAttribute('data-lockapp');
+  unlock();
+  setTimeout(()=>openApp(id, b), 420);
+});
+
+function unlock(){
+  lockEl.classList.add('hide');
+  Sound.open();
+}
+
+/* ==========================================================================
+   18 · HOME / DOCK CLICKS
+   ========================================================================== */
+document.addEventListener('click', function(e){
+  const btn = e.target.closest('[data-app]');
+  if(!btn) return;
+  Sound.click();
+  openApp(btn.getAttribute('data-app'), btn);
+});
+
+/* dynamic island keyboard access */
+Island.el.addEventListener('keydown', function(e){
+  if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); Island.toggle(); }
+});
+
+/* ==========================================================================
+   19 · BOOT SEQUENCE + INIT
+   ========================================================================== */
+function boot(){
+  restore();
+  applyTheme();
+  renderHome();
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  if(!S.animations) osEl.classList.add('noanim');
+
+  /* countdown safety: never leave the user stuck on the boot screen */
+  let p = 0;
+  const bar = $('#bootBar');
+  const iv = setInterval(()=>{
+    p += 14 + Math.random()*12;
+    if(bar) bar.style.width = Math.min(100,p) + '%';
+    if(p >= 100){
+      clearInterval(iv);
+      setTimeout(()=>{
+        const b = $('#boot');
+        if(b) b.classList.add('done');
+      }, 220);
+    }
+  }, 110);
+}
+
+/* unlock first user gesture so audio can start */
+['pointerdown','touchstart','keydown'].forEach(evt=>{
+  document.addEventListener(evt, function once(){
+    Sound.ensure();
+    document.removeEventListener(evt, once);
+  }, { passive:true });
+});
+
+/* rate-limit countdown keeps the send button honest */
+setInterval(()=>{
+  if(rateUntil && rateUntil <= nowMs()){
+    rateUntil = 0;
+    if(!sending) setSendState('idle');
+    updateToolStatus();
+  }
+}, 1000);
+
+/* keep relative notification times fresh while the shade is open */
+setInterval(()=>{
+  if(currentShade === 'notif' && shadeLayer.classList.contains('open')) renderShade();
+}, 30000);
+
+boot();
+
+})();
+</script>
+</body>
+</html>
